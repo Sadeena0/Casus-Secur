@@ -20,7 +20,7 @@ def network_scan():
     log_entries = []
 
     for conn in connections:
-        if conn.status == 'ESTABLISHED' and conn.raddr:
+        if conn.status == 'ESTABLISHED' and conn.raddr and conn.raddr[0] != "127.0.0.1":
             pid = conn.pid
             if pid:
                 try:
