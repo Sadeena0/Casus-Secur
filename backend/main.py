@@ -1,6 +1,7 @@
 from database import *
 import threading
 import psutil
+import time
 
 match open_connection():
     case 0:
@@ -34,3 +35,4 @@ def network_scan():
     add_records(log_entries)
 
 network_scan()
+time.sleep(3600)
