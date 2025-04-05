@@ -1,7 +1,8 @@
 from database import *
 import threading
 import psutil
-import time
+import requests
+import json
 
 match open_connection():
     case 0:
@@ -20,7 +21,7 @@ def network_scan():
     log_entries = []
 
     for conn in connections:
-        if conn.status == 'ESTABLISHED' and conn.raddr and conn.raddr[0] != "127.0.0.1":
+        if conn.status == 'ESTABLISHED' and conn.raddr and conn.raddr[0] != "127.0.0.1" and not conn.raddr[0].startswith("192.168"):
             pid = conn.pid
             if pid:
                 try:
@@ -31,8 +32,17 @@ def network_scan():
             else:
                 app_name = "System"
 
-            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name, "Not Implemented"))
+            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name))
     add_records(log_entries)
 
+def fetch_locations():
+    missing = missing_location()[:100]
+    url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query"
+    data = json.dumps(missing)
+    response = requests.post(url, data=data)
+    update_locations(response.json())
+
 network_scan()
-time.sleep(3600)
+fetch_locations()
+
+

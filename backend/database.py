@@ -20,22 +20,38 @@ def intialise_database():
     connection = sqlite3.connect('connections.db')
     with connection as conn:
         cur = conn.cursor()
-        cur.execute("CREATE TABLE ip_addresses(ip PRIMARY KEY, pid int, appname varchar(255),"
-                    " location varchar(255), times int CHECK(times>0))")
+        cur.execute("CREATE TABLE ip_addresses(ip varchar(255), port int, pid int, appname varchar(255),"
+                    " location varchar(255), times int CHECK(times>0), PRIMARY KEY(ip, port))")
 
 def add_records(records):
     connection = sqlite3.connect('connections.db')
     with connection as conn:
         cur = conn.cursor()
         for record in records:
-            res = cur.execute("SELECT ip FROM ip_addresses WHERE ip=?", (f"{record[0]}:{record[1]}",))
+            res = cur.execute("SELECT ip FROM ip_addresses WHERE ip=? AND port=?", (record[0], record[1]))
             if res.fetchone():
-                cur.execute("SELECT times from ip_addresses WHERE ip=?", (f"{record[0]}:{record[1]}",))
+                cur.execute("SELECT times from ip_addresses WHERE ip=? AND port=?", (record[0], record[1]))
                 times = cur.fetchone()[0] + 1
-                cur.execute("UPDATE ip_addresses SET times=? WHERE ip=?", (times, f"{record[0]}:{record[1]}",))
+                cur.execute("UPDATE ip_addresses SET times=? WHERE ip=? AND port=?", (times, record[0], record[1]))
                 pass
             else:
-                cur.execute("INSERT INTO ip_addresses(ip,pid,appname,times) VALUES(?,?,?,?) "
-                            , (f"{record[0]}:{record[1]}", record[2], record[3], 1))
+                cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times) VALUES(?,?,?,?,?) "
+                            , (record[0], record[1], record[2], record[3], 1))
+
+def missing_location():
+    connection = sqlite3.connect('connections.db')
+    with connection as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT ip FROM ip_addresses WHERE location IS NULL")
+        return list(map(lambda x: x[0], cur.fetchall()))
+
+def update_locations(records):
+    connection = sqlite3.connect('connections.db')
+    with connection as conn:
+        cur = conn.cursor()
+        for record in records:
+            if record["status"] == "success":
+                cur.execute("UPDATE ip_addresses SET location=? WHERE ip=?",
+                            (f"{record["regionName"]}, {record["country"]}", record["query"]))
 
 
