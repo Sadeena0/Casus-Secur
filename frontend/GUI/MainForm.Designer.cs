@@ -28,12 +28,12 @@ namespace GUI {
         private void InitializeComponent() {
             this.MainSplitContainer = new System.Windows.Forms.SplitContainer();
             this.MapButtonsSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.map = new GMap.NET.WindowsForms.GMapControl();
-            this.IPDataList = new System.Windows.Forms.DataGridView();
+            this.Map = new GMap.NET.WindowsForms.GMapControl();
             this.ButtonLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.IPDataList = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
             this.MainSplitContainer.Panel1.SuspendLayout();
             this.MainSplitContainer.Panel2.SuspendLayout();
@@ -42,8 +42,8 @@ namespace GUI {
             this.MapButtonsSplitContainer.Panel1.SuspendLayout();
             this.MapButtonsSplitContainer.Panel2.SuspendLayout();
             this.MapButtonsSplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).BeginInit();
             this.ButtonLayout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).BeginInit();
             this.SuspendLayout();
             // 
             // MainSplitContainer
@@ -72,7 +72,7 @@ namespace GUI {
             // 
             // MapButtonsSplitContainer.Panel1
             // 
-            this.MapButtonsSplitContainer.Panel1.Controls.Add(this.map);
+            this.MapButtonsSplitContainer.Panel1.Controls.Add(this.Map);
             // 
             // MapButtonsSplitContainer.Panel2
             // 
@@ -81,45 +81,32 @@ namespace GUI {
             this.MapButtonsSplitContainer.SplitterDistance = 390;
             this.MapButtonsSplitContainer.TabIndex = 0;
             // 
-            // map
+            // Map
             // 
-            this.map.Bearing = 0F;
-            this.map.CanDragMap = true;
-            this.map.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.map.EmptyTileColor = System.Drawing.Color.Navy;
-            this.map.GrayScaleMode = false;
-            this.map.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
-            this.map.LevelsKeepInMemmory = 5;
-            this.map.Location = new System.Drawing.Point(0, 0);
-            this.map.MarkersEnabled = true;
-            this.map.MaxZoom = 2;
-            this.map.MinZoom = 2;
-            this.map.MouseWheelZoomEnabled = true;
-            this.map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
-            this.map.Name = "map";
-            this.map.NegativeMode = false;
-            this.map.PolygonsEnabled = true;
-            this.map.RetryLoadTile = 0;
-            this.map.RoutesEnabled = true;
-            this.map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
-            this.map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
-            this.map.ShowTileGridLines = false;
-            this.map.Size = new System.Drawing.Size(800, 390);
-            this.map.TabIndex = 0;
-            this.map.Zoom = 0D;
-            // 
-            // IPDataList
-            // 
-            this.IPDataList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.IPDataList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.IPDataList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.IPDataList.Location = new System.Drawing.Point(0, 0);
-            this.IPDataList.Name = "IPDataList";
-            this.IPDataList.RowHeadersWidth = 51;
-            this.IPDataList.RowTemplate.Height = 24;
-            this.IPDataList.Size = new System.Drawing.Size(454, 664);
-            this.IPDataList.TabIndex = 0;
-            this.IPDataList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.IPDataList_CellContentClick);
+            this.Map.Bearing = 0F;
+            this.Map.CanDragMap = true;
+            this.Map.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Map.EmptyTileColor = System.Drawing.Color.Navy;
+            this.Map.GrayScaleMode = false;
+            this.Map.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
+            this.Map.LevelsKeepInMemmory = 5;
+            this.Map.Location = new System.Drawing.Point(0, 0);
+            this.Map.MarkersEnabled = true;
+            this.Map.MaxZoom = 2;
+            this.Map.MinZoom = 2;
+            this.Map.MouseWheelZoomEnabled = true;
+            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.Map.Name = "Map";
+            this.Map.NegativeMode = false;
+            this.Map.PolygonsEnabled = true;
+            this.Map.RetryLoadTile = 0;
+            this.Map.RoutesEnabled = true;
+            this.Map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
+            this.Map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
+            this.Map.ShowTileGridLines = false;
+            this.Map.Size = new System.Drawing.Size(800, 390);
+            this.Map.TabIndex = 0;
+            this.Map.Zoom = 0D;
             // 
             // ButtonLayout
             // 
@@ -138,16 +125,16 @@ namespace GUI {
             this.ButtonLayout.Size = new System.Drawing.Size(800, 270);
             this.ButtonLayout.TabIndex = 0;
             // 
-            // button1
+            // button3
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Location = new System.Drawing.Point(50, 100);
-            this.button1.Margin = new System.Windows.Forms.Padding(50, 100, 50, 100);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(166, 70);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
+            this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button3.Location = new System.Drawing.Point(582, 100);
+            this.button3.Margin = new System.Windows.Forms.Padding(50, 100, 50, 100);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(168, 70);
+            this.button3.TabIndex = 2;
+            this.button3.Text = "button3";
+            this.button3.UseVisualStyleBackColor = true;
             // 
             // button2
             // 
@@ -160,16 +147,29 @@ namespace GUI {
             this.button2.Text = "button2";
             this.button2.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // button1
             // 
-            this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button3.Location = new System.Drawing.Point(582, 100);
-            this.button3.Margin = new System.Windows.Forms.Padding(50, 100, 50, 100);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(168, 70);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "button3";
-            this.button3.UseVisualStyleBackColor = true;
+            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button1.Location = new System.Drawing.Point(50, 100);
+            this.button1.Margin = new System.Windows.Forms.Padding(50, 100, 50, 100);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(166, 70);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // IPDataList
+            // 
+            this.IPDataList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.IPDataList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.IPDataList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.IPDataList.Location = new System.Drawing.Point(0, 0);
+            this.IPDataList.Name = "IPDataList";
+            this.IPDataList.RowHeadersWidth = 51;
+            this.IPDataList.RowTemplate.Height = 24;
+            this.IPDataList.Size = new System.Drawing.Size(454, 664);
+            this.IPDataList.TabIndex = 0;
+            this.IPDataList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.IPDataList_CellContentClick);
             // 
             // MainForm
             // 
@@ -186,8 +186,8 @@ namespace GUI {
             this.MapButtonsSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).EndInit();
             this.MapButtonsSplitContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).EndInit();
             this.ButtonLayout.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -197,7 +197,7 @@ namespace GUI {
         private System.Windows.Forms.SplitContainer MainSplitContainer;
         private System.Windows.Forms.SplitContainer MapButtonsSplitContainer;
         private System.Windows.Forms.DataGridView IPDataList;
-        private GMap.NET.WindowsForms.GMapControl map;
+        private GMap.NET.WindowsForms.GMapControl Map;
         private System.Windows.Forms.TableLayoutPanel ButtonLayout;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button2;
