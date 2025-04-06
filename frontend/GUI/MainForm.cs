@@ -11,34 +11,51 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SQLite;
 using System.IO;
+using GMap.NET.MapProviders;
 
 namespace GUI {
-    public partial class MainForm : Form 
-    {
-        private string connectionString = @"Data Source=C:\Users\britt\Desktop\school\HBO-ICT jaar 1\Blok 3\Security\casus\Casus-Secur\backend\connections.db";
-        public MainForm() 
-        {
+    public partial class MainForm : Form {
+        public MainForm() {
             InitializeComponent();
 
+            Init_Map();
         }
 
-        private void MainForm_Load(object sender, EventArgs e) 
-        {
-            LoadData();
+        private void MainForm_Load(object sender, EventArgs e) {
+            LoadIPAdresList();
         }
-        private void LoadData()
-        {
-            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
-            {
-                conn.Open();
+
+        private void Init_Map() {
+            // Initialize GMap.NET
+            GMaps.Instance.Mode = AccessMode.ServerOnly;
+
+            // Set map properties
+            map.MapProvider = GMapProviders.GoogleMap;
+            map.Position = new PointLatLng(50.88, 5.96);
+            map.MinZoom = 1;
+            map.MaxZoom = 15;
+            map.Zoom = 3;
+            map.ShowCenter = false;
+            map.DragButton = MouseButtons.Left;
+        }
+
+
+        private void LoadIPAdresList() {
+            string connectionString =
+                @"Data Source=C:\Users\Tygo van Eerd\OneDrive - Zuyd Hogeschool\P1.3\Casus Secur\backend\connections.db";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
+                connection.Open();
 
                 string query = "SELECT ip, appname, times FROM ip_addresses";
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, conn);
+                SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
 
-                dataGridView1.DataSource = dt;
+                IPDataList.DataSource = dt;
             }
         }
+
+        private void IPDataList_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
     }
 }
