@@ -581,3 +581,8 @@ _UpgradeReport_Files/
 Thumbs.db
 Desktop.ini
 .DS_Store
+backend/connections.db
+
+backend/.idea/
+
+frontend/GUI/Properties/
