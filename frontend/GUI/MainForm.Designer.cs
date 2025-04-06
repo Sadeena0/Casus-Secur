@@ -32,7 +32,7 @@ namespace GUI {
             this.ButtonLayout = new System.Windows.Forms.TableLayoutPanel();
             this.ClearListButton = new System.Windows.Forms.Button();
             this.ResetMapButton = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.IoCButton = new System.Windows.Forms.Button();
             this.IPDataList = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
             this.MainSplitContainer.Panel1.SuspendLayout();
@@ -106,7 +106,7 @@ namespace GUI {
             this.Map.ShowTileGridLines = false;
             this.Map.Size = new System.Drawing.Size(800, 500);
             this.Map.TabIndex = 0;
-            this.Map.Zoom = 15D;
+            this.Map.Zoom = 2D;
             // 
             // ButtonLayout
             // 
@@ -116,7 +116,7 @@ namespace GUI {
             this.ButtonLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.ButtonLayout.Controls.Add(this.ClearListButton, 2, 0);
             this.ButtonLayout.Controls.Add(this.ResetMapButton, 1, 0);
-            this.ButtonLayout.Controls.Add(this.button1, 0, 0);
+            this.ButtonLayout.Controls.Add(this.IoCButton, 0, 0);
             this.ButtonLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ButtonLayout.Location = new System.Drawing.Point(0, 0);
             this.ButtonLayout.Name = "ButtonLayout";
@@ -125,16 +125,16 @@ namespace GUI {
             this.ButtonLayout.Size = new System.Drawing.Size(800, 160);
             this.ButtonLayout.TabIndex = 0;
             // 
-            // ClearListButton
+            // IoCButton
             // 
-            this.ClearListButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ClearListButton.Location = new System.Drawing.Point(535, 3);
-            this.ClearListButton.Name = "ClearListButton";
-            this.ClearListButton.Size = new System.Drawing.Size(262, 154);
-            this.ClearListButton.TabIndex = 2;
-            this.ClearListButton.Text = "Clear list";
-            this.ClearListButton.UseVisualStyleBackColor = true;
-            this.ClearListButton.Click += new System.EventHandler(this.ClearListButton_Click);
+            this.IoCButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.IoCButton.Location = new System.Drawing.Point(3, 3);
+            this.IoCButton.Name = "IoCButton";
+            this.IoCButton.Size = new System.Drawing.Size(260, 154);
+            this.IoCButton.TabIndex = 0;
+            this.IoCButton.Text = "Indicators of Compromise";
+            this.IoCButton.UseVisualStyleBackColor = true;
+            this.IoCButton.Click += new System.EventHandler(this.IoCButton_Click);
             // 
             // ResetMapButton
             // 
@@ -147,16 +147,16 @@ namespace GUI {
             this.ResetMapButton.UseVisualStyleBackColor = true;
             this.ResetMapButton.Click += new System.EventHandler(this.ResetMapButton_Click);
             // 
-            // button1
+            // ClearListButton
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.button1.Location = new System.Drawing.Point(3, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(260, 154);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Indicators of Compromise";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.ClearListButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ClearListButton.Location = new System.Drawing.Point(535, 3);
+            this.ClearListButton.Name = "ClearListButton";
+            this.ClearListButton.Size = new System.Drawing.Size(262, 154);
+            this.ClearListButton.TabIndex = 2;
+            this.ClearListButton.Text = "Clear list";
+            this.ClearListButton.UseVisualStyleBackColor = true;
+            this.ClearListButton.Click += new System.EventHandler(this.ClearListButton_Click);
             // 
             // IPDataList
             // 
@@ -201,7 +201,7 @@ namespace GUI {
         private System.Windows.Forms.TableLayoutPanel ButtonLayout;
         private System.Windows.Forms.Button ClearListButton;
         private System.Windows.Forms.Button ResetMapButton;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button IoCButton;
     }
 }
 

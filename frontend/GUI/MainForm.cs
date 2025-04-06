@@ -61,12 +61,10 @@ namespace GUI {
 
         private void IPDataList_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
+        private void IoCButton_Click(object sender, EventArgs e) {
             IoC secondForm = new IoC();
             secondForm.Show();
         }
-
 
         private void ResetMapButton_Click(object sender, EventArgs e) {
             Map.Position = new PointLatLng(0, 0);

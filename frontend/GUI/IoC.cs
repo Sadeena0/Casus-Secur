@@ -8,13 +8,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace GUI
-{
-    public partial class IoC : Form
-    {
-        public IoC()
-        {
+namespace GUI {
+    public partial class IoC : Form {
+        public IoC() {
             InitializeComponent();
         }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
     }
 }
