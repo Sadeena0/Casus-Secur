@@ -585,4 +585,7 @@ backend/connections.db
 
 backend/.idea/
 
-frontend/GUI/Properties/
+frontend/GUI/Properties/AssemblyInfo.cs
+frontend/GUI/Properties/Resources.Designer.cs
+frontend/GUI/Properties/Settings.Designer.cs
+frontend/GUI/Properties/Settings.settings
