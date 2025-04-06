@@ -26,56 +26,57 @@ namespace GUI {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.MainTableLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.MapButtonSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.MainTableLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonSplitContainer)).BeginInit();
-            this.MapButtonSplitContainer.SuspendLayout();
+            this.MainSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.MapButtonsSplitContainer = new System.Windows.Forms.SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
+            this.MainSplitContainer.Panel1.SuspendLayout();
+            this.MainSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).BeginInit();
+            this.MapButtonsSplitContainer.SuspendLayout();
             this.SuspendLayout();
             // 
-            // MainTableLayout
+            // MainSplitContainer
             // 
-            this.MainTableLayout.ColumnCount = 2;
-            this.MainTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 62.79809F));
-            this.MainTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 37.20191F));
-            this.MainTableLayout.Controls.Add(this.MapButtonSplitContainer, 0, 0);
-            this.MainTableLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainTableLayout.Location = new System.Drawing.Point(0, 0);
-            this.MainTableLayout.Name = "MainTableLayout";
-            this.MainTableLayout.RowCount = 1;
-            this.MainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.MainTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.MainTableLayout.Size = new System.Drawing.Size(1258, 664);
-            this.MainTableLayout.TabIndex = 0;
+            this.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.MainSplitContainer.Name = "MainSplitContainer";
+            // 
+            // MainSplitContainer.Panel1
+            // 
+            this.MainSplitContainer.Panel1.Controls.Add(this.MapButtonsSplitContainer);
+            this.MainSplitContainer.Size = new System.Drawing.Size(1258, 664);
+            this.MainSplitContainer.SplitterDistance = 419;
+            this.MainSplitContainer.TabIndex = 0;
             // 
             // splitContainer1
             // 
-            this.MapButtonSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MapButtonSplitContainer.Location = new System.Drawing.Point(3, 3);
-            this.MapButtonSplitContainer.Name = "splitContainer1";
-            this.MapButtonSplitContainer.Size = new System.Drawing.Size(784, 658);
-            this.MapButtonSplitContainer.SplitterDistance = 261;
-            this.MapButtonSplitContainer.TabIndex = 0;
-            this.MapButtonSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.MapButtonsSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MapButtonsSplitContainer.Location = new System.Drawing.Point(0, 0);
+            this.MapButtonsSplitContainer.Name = "splitContainer1";
+            this.MapButtonsSplitContainer.Size = new System.Drawing.Size(419, 664);
+            this.MapButtonsSplitContainer.SplitterDistance = 139;
+            this.MapButtonsSplitContainer.TabIndex = 0;
             // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(1258, 664);
-            this.Controls.Add(this.MainTableLayout);
+            this.Controls.Add(this.MainSplitContainer);
             this.Name = "MainForm";
             this.Text = "IP Tracker";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.MainTableLayout.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonSplitContainer)).EndInit();
-            this.MapButtonSplitContainer.ResumeLayout(false);
+            this.MainSplitContainer.Panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).EndInit();
+            this.MainSplitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).EndInit();
+            this.MapButtonsSplitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel MainTableLayout;
-        private System.Windows.Forms.SplitContainer MapButtonSplitContainer;
+        private System.Windows.Forms.SplitContainer MainSplitContainer;
+        private System.Windows.Forms.SplitContainer MapButtonsSplitContainer;
     }
 }
 
