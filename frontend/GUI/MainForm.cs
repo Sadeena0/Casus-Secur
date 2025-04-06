@@ -1,4 +1,4 @@
-﻿using GMap.NET.WindowsForms;
+using GMap.NET.WindowsForms;
 using GMap.NET;
 using System;
 using System.Collections.Generic;
@@ -30,14 +30,13 @@ namespace GUI {
 
             // Set map properties
             Map.MapProvider = GMapProviders.GoogleMap;
-            Map.Position = new PointLatLng(50.88, 5.96);
+            Map.Position = new PointLatLng(0, 0);
             Map.MinZoom = 1;
             Map.MaxZoom = 15;
             Map.Zoom = 3;
             Map.ShowCenter = false;
             Map.DragButton = MouseButtons.Left;
         }
-
 
         private void LoadIPAdresList() {
             try {
@@ -66,6 +65,18 @@ namespace GUI {
         {
             IoC secondForm = new IoC();
             secondForm.Show();
+        }
+
+
+        private void ResetMapButton_Click(object sender, EventArgs e) {
+            Map.Position = new PointLatLng(0, 0);
+            Map.Zoom = 2;
+        }
+
+        private void ClearListButton_Click(object sender, EventArgs e) {
+            if (IPDataList.DataSource is DataTable dt) {
+                dt.Clear();
+            }
         }
     }
 }
