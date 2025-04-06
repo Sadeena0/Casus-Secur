@@ -45,17 +45,18 @@ namespace GUI {
             // 
             this.MainSplitContainer.Panel1.Controls.Add(this.MapButtonsSplitContainer);
             this.MainSplitContainer.Size = new System.Drawing.Size(1258, 664);
-            this.MainSplitContainer.SplitterDistance = 419;
+            this.MainSplitContainer.SplitterDistance = 800;
             this.MainSplitContainer.TabIndex = 0;
             // 
-            // splitContainer1
+            // MapButtonsSplitContainer
             // 
             this.MapButtonsSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MapButtonsSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.MapButtonsSplitContainer.Name = "splitContainer1";
+            this.MapButtonsSplitContainer.Name = "MapButtonsSplitContainer";
             this.MapButtonsSplitContainer.Size = new System.Drawing.Size(419, 664);
-            this.MapButtonsSplitContainer.SplitterDistance = 139;
+            this.MapButtonsSplitContainer.SplitterDistance = 800;
             this.MapButtonsSplitContainer.TabIndex = 0;
+            this.MapButtonsSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // MainForm
             // 

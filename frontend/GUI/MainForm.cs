@@ -18,15 +18,6 @@ namespace GUI {
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
-            GMaps.Instance.Mode = AccessMode.ServerOnly;
-
-            map.MapProvider = GMap.NET.MapProviders.GoogleMapProvider.Instance;
-            map.Position = new GMap.NET.PointLatLng(50.88, 5.96); // Example: Paris
-            map.MinZoom = 2;
-            map.MaxZoom = 18;
-            map.Zoom = 10;
-            map.ShowCenter = false;
-            map.DragButton = MouseButtons.Left;
         }
     }
 }
