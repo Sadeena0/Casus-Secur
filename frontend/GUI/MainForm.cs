@@ -41,13 +41,14 @@ namespace GUI {
 
 
         private void LoadIPAdresList() {
+            
             string connectionString =
-                @"Data Source=C:\Users\Tygo van Eerd\OneDrive - Zuyd Hogeschool\P1.3\Casus Secur\backend\connections.db";
+                $"Data Source={Directory.GetParent(Application.StartupPath).Parent.Parent.Parent.FullName}\\backend\\connections.db";
 
             using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
                 connection.Open();
 
-                string query = "SELECT ip, appname, times FROM ip_addresses";
+                string query = "SELECT ip, appname, times, location FROM ip_addresses";
                 SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
