@@ -36,8 +36,9 @@ def network_scan():
     add_records(log_entries)
 
 def fetch_locations():
+    threading.Timer(10, fetch_locations).start()
     missing = missing_location()[:100]
-    url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query"
+    url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query,lat,lon"
     data = json.dumps(missing)
     response = requests.post(url, data=data)
     update_locations(response.json())

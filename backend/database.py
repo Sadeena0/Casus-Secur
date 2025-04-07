@@ -21,7 +21,7 @@ def intialise_database():
     with connection as conn:
         cur = conn.cursor()
         cur.execute("CREATE TABLE ip_addresses(ip varchar(255), port int, pid int, appname varchar(255),"
-                    " location varchar(255), times int CHECK(times>0), PRIMARY KEY(ip, port))")
+                    " location varchar(255), times int CHECK(times>0), lat float, lon float, PRIMARY KEY(ip, port))")
 
 def add_records(records):
     connection = sqlite3.connect('connections.db')
@@ -51,7 +51,7 @@ def update_locations(records):
         cur = conn.cursor()
         for record in records:
             if record["status"] == "success":
-                cur.execute("UPDATE ip_addresses SET location=? WHERE ip=?",
-                            (f"{record["regionName"]}, {record["country"]}", record["query"]))
+                cur.execute("UPDATE ip_addresses SET location=?, lat=?, lon=? WHERE ip=?",
+                            (f"{record['regionName']}, {record['country']}", record['lat'], record['lon'], record['query']))
 
 
