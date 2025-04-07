@@ -38,6 +38,12 @@ def add_records(records):
                 cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times) VALUES(?,?,?,?,?) "
                             , (record[0], record[1], record[2], record[3], 1))
 
+def clear_records():
+    connection = sqlite3.connect('connections.db')
+    with connection as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM ip_addresses")
+
 def missing_location():
     connection = sqlite3.connect('connections.db')
     with connection as conn:

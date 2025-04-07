@@ -1,4 +1,5 @@
 from database import *
+from flask import Flask
 import threading
 import psutil
 import requests
@@ -14,6 +15,9 @@ match open_connection():
         print("Empty database detected. Initializing database.")
         intialise_database()
 
+app = Flask(__name__)
+
+
 def network_scan():
     threading.Timer(1, network_scan).start()
     connections = psutil.net_connections(kind='inet')
@@ -21,7 +25,9 @@ def network_scan():
     log_entries = []
 
     for conn in connections:
-        if conn.status == 'ESTABLISHED' and conn.raddr and conn.raddr[0] != "127.0.0.1" and not conn.raddr[0].startswith("192.168"):
+        if (conn.status == 'ESTABLISHED' and conn.raddr and
+                conn.raddr[0] not in ["127.0.0.1", "::1"]
+                and not conn.raddr[0].startswith("192.168")):
             pid = conn.pid
             if pid:
                 try:
@@ -35,6 +41,7 @@ def network_scan():
             log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name))
     add_records(log_entries)
 
+
 def fetch_locations():
     threading.Timer(10, fetch_locations).start()
     missing = missing_location()[:100]
@@ -43,7 +50,12 @@ def fetch_locations():
     response = requests.post(url, data=data)
     update_locations(response.json())
 
-network_scan()
-fetch_locations()
+@app.route("/cleardb", methods=["POST"])
+def clear_database_endpoint():
+    clear_records()
+    return "Database cleared.", 200
 
-
+if __name__ == "__main__":
+    network_scan()
+    fetch_locations()
+    app.run(host='0.0.0.0', port=5000)
