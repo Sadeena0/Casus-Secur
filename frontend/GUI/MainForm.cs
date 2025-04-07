@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SQLite;
 using System.IO;
+using System.Net.Http;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms.Markers;
 
@@ -53,7 +54,6 @@ namespace GUI {
             UpdateMarkersFromDatabase();
         }
 
-
         private void Init_Map() {
             // Initialize GMap.NET
             GMaps.Instance.Mode = AccessMode.ServerOnly;
@@ -91,7 +91,6 @@ namespace GUI {
 
                 if (double.TryParse(row["lat"]?.ToString(), out double lat) &&
                     double.TryParse(row["lon"]?.ToString(), out double lon)) {
-
                     AddMarker(lat, lon, IoCList.Contains(ip));
                 }
             }
@@ -131,7 +130,7 @@ namespace GUI {
 
             try {
                 string connectionString =
-                    $"Data Source={Directory.GetParent(Application.StartupPath).Parent.Parent.Parent.FullName}\\backend\\connections.db";
+                    $"Data Source=..\\..\\..\\..\\backend\\connections.db";
 
                 // Get data from database
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
@@ -169,7 +168,13 @@ namespace GUI {
         private void ClearListButton_Click(object sender, EventArgs e) {
             Console.WriteLine("Clearing IP Data list...");
 
-            dt.Clear();
+            HttpClient client = new HttpClient {
+                BaseAddress = new Uri("http://127.0.0.1:5000/cleardb")
+            };
+
+            HttpResponseMessage response = client.PostAsync("http://127.0.0.1:5000/cleardb", null).Result;
+
+            client.Dispose();
         }
     }
 }
