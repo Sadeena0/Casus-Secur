@@ -35,9 +35,10 @@ namespace GUI {
             Init_Map();
 
             // Draw initial markers
-            UpdateMarkersFromDatabase();
             UpdateIpAddressList();
+            UpdateMarkersFromDataTable();
 
+            // Start update loop
             Timer updateTimer = new Timer();
             updateTimer.Interval = 1000; // 1000ms = 1 second
             updateTimer.Tick += UpdateTimer_Tick;
@@ -51,9 +52,10 @@ namespace GUI {
             UpdateIpAddressList();
 
             // Update markers
-            UpdateMarkersFromDatabase();
+            UpdateMarkersFromDataTable();
         }
 
+        // Initialize map
         private void Init_Map() {
             // Initialize GMap.NET
             GMaps.Instance.Mode = AccessMode.ServerOnly;
@@ -68,8 +70,8 @@ namespace GUI {
             Map.DragButton = MouseButtons.Left;
         }
 
-        // Add all locations from database
-        private void UpdateMarkersFromDatabase() {
+        // Update markers from internal DataTable
+        private void UpdateMarkersFromDataTable() {
             // Clear all overlays from the map
             Map.Overlays.Clear();
 
@@ -103,13 +105,15 @@ namespace GUI {
             GMarkerGoogle marker = new GMarkerGoogle(point,
                 isIoC ? GMarkerGoogleType.red_small : GMarkerGoogleType.green_small);
 
+            // Add Tag for marker clicks
+            marker.Tag = new { Lat = lat, Lng = lng };
+
             markersOverlay.Markers.Add(marker);
 
-            // Draw line from this point to reference point
             DrawLineToReference(point, isIoC);
         }
 
-        // Draw line from referencepoint to marker
+        // Draw line from reference point to marker
         private void DrawLineToReference(PointLatLng destination, bool isIoC) {
             List<PointLatLng> points = new List<PointLatLng> {
                 referencePoint,
@@ -151,6 +155,45 @@ namespace GUI {
         }
 
         // Onclick events
+        private void Map_OnMarkerClick(GMapMarker item, MouseEventArgs e) {
+            // Retrieve coordinates
+            var coordinates = item.Tag as dynamic;
+            double lat = coordinates.Lat;
+            double lng = coordinates.Lng;
+
+            // Highlight correct row in DataGridView
+            foreach (DataGridViewRow row in IPDataList.Rows) {
+                double rowLat = Convert.ToDouble(row.Cells["lat"].Value);
+                double rowLng = Convert.ToDouble(row.Cells["lon"].Value);
+
+                // If lat/lng match, select and highlight the row
+                if (rowLat == lat && rowLng == lng) {
+                    row.Selected = true;
+                    IPDataList.FirstDisplayedScrollingRowIndex = row.Index;
+                    break;
+                }
+            }
+        }
+
+        private void IpAddressList_OnCellClick(object sender, DataGridViewCellEventArgs e) {
+            // Check if clicked cell is not a header
+            if(e.RowIndex > 0 && e.ColumnIndex > 0) {
+                DataGridViewRow row = IPDataList.Rows[e.RowIndex];
+
+                double lat = Convert.ToDouble(row.Cells["lat"].Value);
+                double lng = Convert.ToDouble(row.Cells["lon"].Value);
+
+                // Foreach to get mutable object
+                for(int i = 0; i < markersOverlay.Markers.Count; i++) {
+                    GMapMarker marker = markersOverlay.Markers[i];
+
+                    if(marker.Position.Lat == lat && marker.Position.Lng == lng) {
+                        markersOverlay.Markers[i] = new GMarkerGoogle(marker.Position, GMarkerGoogleType.blue_dot);
+                    }
+                }
+            }
+        }
+
         private void IoCButton_Click(object sender, EventArgs e) {
             Console.WriteLine("Opening IoC window...");
 

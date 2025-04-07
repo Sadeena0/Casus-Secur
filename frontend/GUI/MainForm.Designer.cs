@@ -95,7 +95,7 @@ namespace GUI {
             this.Map.MaxZoom = 2;
             this.Map.MinZoom = 15;
             this.Map.MouseWheelZoomEnabled = true;
-            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionWithoutCenter;
             this.Map.Name = "Map";
             this.Map.NegativeMode = false;
             this.Map.PolygonsEnabled = true;
@@ -106,7 +106,8 @@ namespace GUI {
             this.Map.ShowTileGridLines = false;
             this.Map.Size = new System.Drawing.Size(813, 542);
             this.Map.TabIndex = 0;
-            this.Map.Zoom = 2D;
+            this.Map.Zoom = 15D;
+            this.Map.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.Map_OnMarkerClick);
             // 
             // ButtonLayout
             // 
@@ -169,6 +170,7 @@ namespace GUI {
             this.IPDataList.RowTemplate.Height = 24;
             this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
+            this.IPDataList.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.IpAddressList_OnCellClick);
             // 
             // MainForm
             // 
