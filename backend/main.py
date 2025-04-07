@@ -1,5 +1,5 @@
 from database import *
-from flask import Flask
+from flask import Flask, request, abort
 import threading
 import psutil
 import requests
@@ -50,6 +50,10 @@ def fetch_locations():
     response = requests.post(url, data=data)
     update_locations(response.json())
 
+@app.before_request
+def limit_remote_addr():
+    if request.remote_addr != '127.0.0.1':
+        abort(403)
 @app.route("/cleardb", methods=["POST"])
 def clear_database_endpoint():
     clear_records()
