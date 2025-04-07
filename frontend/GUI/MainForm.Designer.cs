@@ -59,8 +59,8 @@ namespace GUI {
             // MainSplitContainer.Panel2
             // 
             this.MainSplitContainer.Panel2.Controls.Add(this.IPDataList);
-            this.MainSplitContainer.Size = new System.Drawing.Size(1258, 664);
-            this.MainSplitContainer.SplitterDistance = 800;
+            this.MainSplitContainer.Size = new System.Drawing.Size(1280, 720);
+            this.MainSplitContainer.SplitterDistance = 813;
             this.MainSplitContainer.TabIndex = 0;
             // 
             // MapButtonsSplitContainer
@@ -77,8 +77,8 @@ namespace GUI {
             // MapButtonsSplitContainer.Panel2
             // 
             this.MapButtonsSplitContainer.Panel2.Controls.Add(this.ButtonLayout);
-            this.MapButtonsSplitContainer.Size = new System.Drawing.Size(800, 664);
-            this.MapButtonsSplitContainer.SplitterDistance = 500;
+            this.MapButtonsSplitContainer.Size = new System.Drawing.Size(813, 720);
+            this.MapButtonsSplitContainer.SplitterDistance = 542;
             this.MapButtonsSplitContainer.TabIndex = 0;
             // 
             // Map
@@ -104,7 +104,7 @@ namespace GUI {
             this.Map.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.Map.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.Map.ShowTileGridLines = false;
-            this.Map.Size = new System.Drawing.Size(800, 500);
+            this.Map.Size = new System.Drawing.Size(813, 542);
             this.Map.TabIndex = 0;
             this.Map.Zoom = 2D;
             // 
@@ -122,41 +122,41 @@ namespace GUI {
             this.ButtonLayout.Name = "ButtonLayout";
             this.ButtonLayout.RowCount = 1;
             this.ButtonLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.ButtonLayout.Size = new System.Drawing.Size(800, 160);
+            this.ButtonLayout.Size = new System.Drawing.Size(813, 174);
             this.ButtonLayout.TabIndex = 0;
+            // 
+            // ClearListButton
+            // 
+            this.ClearListButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ClearListButton.Location = new System.Drawing.Point(545, 3);
+            this.ClearListButton.Name = "ClearListButton";
+            this.ClearListButton.Size = new System.Drawing.Size(265, 168);
+            this.ClearListButton.TabIndex = 2;
+            this.ClearListButton.Text = "Clear list";
+            this.ClearListButton.UseVisualStyleBackColor = true;
+            this.ClearListButton.Click += new System.EventHandler(this.ClearListButton_Click);
+            // 
+            // ResetMapButton
+            // 
+            this.ResetMapButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ResetMapButton.Location = new System.Drawing.Point(274, 3);
+            this.ResetMapButton.Name = "ResetMapButton";
+            this.ResetMapButton.Size = new System.Drawing.Size(265, 168);
+            this.ResetMapButton.TabIndex = 1;
+            this.ResetMapButton.Text = "Reset map";
+            this.ResetMapButton.UseVisualStyleBackColor = true;
+            this.ResetMapButton.Click += new System.EventHandler(this.ResetMapButton_Click);
             // 
             // IoCButton
             // 
             this.IoCButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IoCButton.Location = new System.Drawing.Point(3, 3);
             this.IoCButton.Name = "IoCButton";
-            this.IoCButton.Size = new System.Drawing.Size(260, 154);
+            this.IoCButton.Size = new System.Drawing.Size(265, 168);
             this.IoCButton.TabIndex = 0;
             this.IoCButton.Text = "Indicators of Compromise";
             this.IoCButton.UseVisualStyleBackColor = true;
             this.IoCButton.Click += new System.EventHandler(this.IoCButton_Click);
-            // 
-            // ResetMapButton
-            // 
-            this.ResetMapButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ResetMapButton.Location = new System.Drawing.Point(269, 3);
-            this.ResetMapButton.Name = "ResetMapButton";
-            this.ResetMapButton.Size = new System.Drawing.Size(260, 154);
-            this.ResetMapButton.TabIndex = 1;
-            this.ResetMapButton.Text = "Reset map";
-            this.ResetMapButton.UseVisualStyleBackColor = true;
-            this.ResetMapButton.Click += new System.EventHandler(this.ResetMapButton_Click);
-            // 
-            // ClearListButton
-            // 
-            this.ClearListButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ClearListButton.Location = new System.Drawing.Point(535, 3);
-            this.ClearListButton.Name = "ClearListButton";
-            this.ClearListButton.Size = new System.Drawing.Size(262, 154);
-            this.ClearListButton.TabIndex = 2;
-            this.ClearListButton.Text = "Clear list";
-            this.ClearListButton.UseVisualStyleBackColor = true;
-            this.ClearListButton.Click += new System.EventHandler(this.ClearListButton_Click);
             // 
             // IPDataList
             // 
@@ -167,13 +167,12 @@ namespace GUI {
             this.IPDataList.Name = "IPDataList";
             this.IPDataList.RowHeadersWidth = 51;
             this.IPDataList.RowTemplate.Height = 24;
-            this.IPDataList.Size = new System.Drawing.Size(454, 664);
+            this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
-            this.IPDataList.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.IPDataList_CellContentClick);
             // 
             // MainForm
             // 
-            this.ClientSize = new System.Drawing.Size(1258, 664);
+            this.ClientSize = new System.Drawing.Size(1280, 720);
             this.Controls.Add(this.MainSplitContainer);
             this.Name = "MainForm";
             this.Text = "IP Tracker";

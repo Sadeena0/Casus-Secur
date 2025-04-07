@@ -16,11 +16,15 @@ using GMap.NET.WindowsForms.Markers;
 
 namespace GUI {
     public partial class MainForm : Form {
-        private Timer updateTimer;
-
         private GMapOverlay markersOverlay;
         private GMapOverlay routeOverlay;
         private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
+
+        private DataTable dt = new DataTable();
+
+        private readonly HashSet<string> IoCList = new HashSet<string>(
+            File.ReadAllLines($"..\\..\\..\\GUI\\blacklist.txt")
+        );
 
         public MainForm() {
             InitializeComponent();
@@ -33,7 +37,7 @@ namespace GUI {
             UpdateMarkersFromDatabase();
             UpdateIpAddressList();
 
-            updateTimer = new Timer();
+            Timer updateTimer = new Timer();
             updateTimer.Interval = 1000; // 1000ms = 1 second
             updateTimer.Tick += UpdateTimer_Tick;
             updateTimer.Start();
@@ -57,7 +61,7 @@ namespace GUI {
             // Set map properties
             Map.MapProvider = GMapProviders.GoogleMap;
             Map.Position = new PointLatLng(25, 15);
-            Map.MinZoom = 1;
+            Map.MinZoom = 2;
             Map.MaxZoom = 15;
             Map.Zoom = 2;
             Map.ShowCenter = false;
@@ -81,42 +85,49 @@ namespace GUI {
             GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
             markersOverlay.Markers.Add(referenceMarker);
 
-            // For now just test with fake data
-            AddMarker(23.13, 113.26, true);
-            AddMarker(-33.95, 18.58);
-            AddMarker(34, -118.28);
+            // Read all rows from DataTable and draw markers
+            foreach (DataRow row in dt.Rows) {
+                string ip = row["ip"]?.ToString();
+
+                if (double.TryParse(row["lat"]?.ToString(), out double lat) &&
+                    double.TryParse(row["lon"]?.ToString(), out double lon)) {
+
+                    AddMarker(lat, lon, IoCList.Contains(ip));
+                }
+            }
         }
 
         // Add single marker
-        private void AddMarker(double lat, double lng, bool ioc = false) {
+        private void AddMarker(double lat, double lng, bool isIoC = false) {
             PointLatLng point = new PointLatLng(lat, lng);
 
             GMarkerGoogle marker = new GMarkerGoogle(point,
-                ioc ? GMarkerGoogleType.yellow_small : GMarkerGoogleType.green_small);
+                isIoC ? GMarkerGoogleType.red_small : GMarkerGoogleType.green_small);
 
             markersOverlay.Markers.Add(marker);
 
             // Draw line from this point to reference point
-            DrawLineToReference(point, ioc);
+            DrawLineToReference(point, isIoC);
         }
 
-        private void DrawLineToReference(PointLatLng destination, bool ioc) {
+        // Draw line from referencepoint to marker
+        private void DrawLineToReference(PointLatLng destination, bool isIoC) {
             List<PointLatLng> points = new List<PointLatLng> {
-                destination,
-                referencePoint
+                referencePoint,
+                destination
             };
 
             GMapRoute route = new GMapRoute(points, "lineToDest") {
-                Stroke = new Pen(ioc ? Color.Yellow : Color.Green, 2)
+                Stroke = new Pen(isIoC ? Color.Red : Color.Green, 2)
             };
 
             routeOverlay.Routes.Add(route);
         }
 
+        // Update IP data list
         private void UpdateIpAddressList() {
-            if (IPDataList.DataSource is DataTable oldDT) {
-                oldDT.Clear();
-            }
+            // Clear list
+            dt = new DataTable();
 
             try {
                 string connectionString =
@@ -126,20 +137,21 @@ namespace GUI {
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
                     connection.Open();
 
-                    string query = "SELECT ip, appname, times, location FROM ip_addresses";
+                    string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
                     SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
-                    DataTable newDT = new DataTable();
-                    adapter.Fill(newDT);
+                    adapter.Fill(dt);
 
-                    IPDataList.DataSource = newDT;
+                    // Fill data into DataGridView but hide Lat and Lon columns
+                    IPDataList.DataSource = dt;
+                    IPDataList.Columns["lat"].Visible = false;
+                    IPDataList.Columns["lon"].Visible = false;
                 }
             } catch (Exception e) {
                 Console.WriteLine(e);
             }
         }
 
-        private void IPDataList_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
-
+        // Onclick events
         private void IoCButton_Click(object sender, EventArgs e) {
             Console.WriteLine("Opening IoC window...");
 
@@ -157,9 +169,7 @@ namespace GUI {
         private void ClearListButton_Click(object sender, EventArgs e) {
             Console.WriteLine("Clearing IP Data list...");
 
-            if (IPDataList.DataSource is DataTable dt) {
-                dt.Clear();
-            }
+            dt.Clear();
         }
     }
 }
