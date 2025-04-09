@@ -56,10 +56,20 @@ def fetch_locations():
     response = requests.post(url, data=data)
     update_locations(response.json())
 
+@app.route("/getdb", methods=["GET"])
+def get_database_endpoint():
+    key = request.args.get("key")
+    if key is None:
+        return "No API key provided.", 400
+    if key not in API_KEY:
+        return "Invalid API key.", 401
+    else:
+        data = json.dumps(fetch_records())
+        return data, 200
+
 @app.route("/cleardb", methods=["POST"])
 def clear_database_endpoint():
     key = request.args.get("key")
-    print (request.args.get("key"))
     if key is None:
         return "No API key provided.", 400
     if key not in API_KEY:
