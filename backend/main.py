@@ -1,9 +1,15 @@
+import os
+
 from database import *
 from flask import Flask, request, abort
+from dotenv import load_dotenv
 import threading
 import psutil
 import requests
 import json
+
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 match open_connection():
     case 0:
@@ -50,14 +56,17 @@ def fetch_locations():
     response = requests.post(url, data=data)
     update_locations(response.json())
 
-@app.before_request
-def limit_remote_addr():
-    if request.remote_addr != '127.0.0.1':
-        abort(403)
 @app.route("/cleardb", methods=["POST"])
 def clear_database_endpoint():
-    clear_records()
-    return "Database cleared.", 200
+    key = request.args.get("key")
+    print (request.args.get("key"))
+    if key is None:
+        return "No API key provided.", 400
+    if key not in API_KEY:
+        return "Invalid API key.", 401
+    else:
+        clear_records()
+        return "Database cleared.", 200
 
 if __name__ == "__main__":
     network_scan()
