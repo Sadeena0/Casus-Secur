@@ -9,11 +9,11 @@ import psutil
 import requests
 import json
 import os
+import re
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 last_check = datetime.now(timezone.utc)
-unflushed_log = []
 
 match open_connection():
     case 0:
@@ -61,12 +61,17 @@ def network_scan():
                         timestamp_str = line[:32]
                         timestamp = datetime.fromisoformat(timestamp_str)
                         if timestamp > last_check:
-                            parsed_log.append(line.strip())
+                            match = re.search(r"from (\d+\.\d+\.\d+\.\d+) port (\d+)", line.strip())
+                            if match:
+                                ip = match.group(1)
+                                port = int(match.group(2))
+                                parsed_log.append((ip, port))
                     except Exception as e:
                         print(f"Error parsing line: {line.strip()}, {e}")
         if parsed_log:
             parsed_log = list(dict.fromkeys(parsed_log))
-            unflushed_log.extend(parsed_log)
+            for (ip, port) in parsed_log:
+                log_entries.append((ip, port, -1, "SSH"))
     add_records(log_entries)
     last_check = datetime.now(timezone.utc)
     threading.Timer(1, network_scan).start()
@@ -102,21 +107,21 @@ def clear_database_endpoint():
         clear_records()
         return "Database cleared.", 200
 
-@app.route("/getsshlog", methods=["GET"])
-def get_sshlog_endpoint():
-    global unflushed_log
-    key = request.args.get("key")
-    if key is None:
-        return "No API key provided.", 400
-    if key not in API_KEY:
-        return "Invalid API key.", 401
-    else:
-        if platform.system() == "Linux":
-            data = json.dumps(unflushed_log)
-            unflushed_log = []
-            return data, 200
-        else:
-            return "Endpoint unavailable on target's operating system.", 501
+# @app.route("/getsshlog", methods=["GET"])
+# def get_sshlog_endpoint():
+#     global unflushed_log
+#     key = request.args.get("key")
+#     if key is None:
+#         return "No API key provided.", 400
+#     if key not in API_KEY:
+#         return "Invalid API key.", 401
+#     else:
+#         if platform.system() == "Linux":
+#             data = json.dumps(unflushed_log)
+#             unflushed_log = []
+#             return data, 200
+#         else:
+#             return "Endpoint unavailable on target's operating system.", 501
 
 if __name__ == "__main__":
     network_scan()
