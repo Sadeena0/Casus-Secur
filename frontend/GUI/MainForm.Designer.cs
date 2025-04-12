@@ -32,8 +32,11 @@ namespace GUI {
             this.ButtonLayout = new System.Windows.Forms.TableLayoutPanel();
             this.ClearListButton = new System.Windows.Forms.Button();
             this.ResetMapButton = new System.Windows.Forms.Button();
-            this.IoCButton = new System.Windows.Forms.Button();
             this.IPDataList = new System.Windows.Forms.DataGridView();
+            this.InputOptionsBox = new System.Windows.Forms.GroupBox();
+            this.InputButtonLocal = new System.Windows.Forms.RadioButton();
+            this.InputButtonRemote = new System.Windows.Forms.RadioButton();
+            this.InputRemoteTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
             this.MainSplitContainer.Panel1.SuspendLayout();
             this.MainSplitContainer.Panel2.SuspendLayout();
@@ -44,6 +47,7 @@ namespace GUI {
             this.MapButtonsSplitContainer.SuspendLayout();
             this.ButtonLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).BeginInit();
+            this.InputOptionsBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // MainSplitContainer
@@ -106,7 +110,7 @@ namespace GUI {
             this.Map.ShowTileGridLines = false;
             this.Map.Size = new System.Drawing.Size(813, 542);
             this.Map.TabIndex = 0;
-            this.Map.Zoom = 15D;
+            this.Map.Zoom = 2D;
             this.Map.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.Map_OnMarkerClick);
             // 
             // ButtonLayout
@@ -117,7 +121,7 @@ namespace GUI {
             this.ButtonLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.ButtonLayout.Controls.Add(this.ClearListButton, 2, 0);
             this.ButtonLayout.Controls.Add(this.ResetMapButton, 1, 0);
-            this.ButtonLayout.Controls.Add(this.IoCButton, 0, 0);
+            this.ButtonLayout.Controls.Add(this.InputOptionsBox, 0, 0);
             this.ButtonLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ButtonLayout.Location = new System.Drawing.Point(0, 0);
             this.ButtonLayout.Name = "ButtonLayout";
@@ -148,29 +152,70 @@ namespace GUI {
             this.ResetMapButton.UseVisualStyleBackColor = true;
             this.ResetMapButton.Click += new System.EventHandler(this.ResetMapButton_Click);
             // 
-            // IoCButton
-            // 
-            this.IoCButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.IoCButton.Location = new System.Drawing.Point(3, 3);
-            this.IoCButton.Name = "IoCButton";
-            this.IoCButton.Size = new System.Drawing.Size(265, 168);
-            this.IoCButton.TabIndex = 0;
-            this.IoCButton.Text = "Indicators of Compromise";
-            this.IoCButton.UseVisualStyleBackColor = true;
-            this.IoCButton.Click += new System.EventHandler(this.IoCButton_Click);
-            // 
             // IPDataList
             // 
             this.IPDataList.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.IPDataList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.IPDataList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IPDataList.Location = new System.Drawing.Point(0, 0);
+            this.IPDataList.MultiSelect = false;
             this.IPDataList.Name = "IPDataList";
             this.IPDataList.RowHeadersWidth = 51;
             this.IPDataList.RowTemplate.Height = 24;
+            this.IPDataList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
-            this.IPDataList.CurrentCellChanged += new System.EventHandler(this.IpAddressList_OnCellChanged);
+            this.IPDataList.SelectionChanged += new System.EventHandler(this.IpAddressList_OnRowSelected);
+            // 
+            // InputOptionsBox
+            // 
+            this.InputOptionsBox.Controls.Add(this.InputRemoteTextBox);
+            this.InputOptionsBox.Controls.Add(this.InputButtonRemote);
+            this.InputOptionsBox.Controls.Add(this.InputButtonLocal);
+            this.InputOptionsBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.InputOptionsBox.Location = new System.Drawing.Point(3, 3);
+            this.InputOptionsBox.Name = "InputOptionsBox";
+            this.InputOptionsBox.Size = new System.Drawing.Size(265, 168);
+            this.InputOptionsBox.TabIndex = 3;
+            this.InputOptionsBox.TabStop = false;
+            this.InputOptionsBox.Text = "Input Options";
+            // 
+            // InputButtonLocal
+            // 
+            this.InputButtonLocal.AutoSize = true;
+            this.InputButtonLocal.Checked = true;
+            this.InputButtonLocal.Location = new System.Drawing.Point(9, 25);
+            this.InputButtonLocal.Name = "InputButtonLocal";
+            this.InputButtonLocal.Size = new System.Drawing.Size(72, 24);
+            this.InputButtonLocal.TabIndex = 0;
+            this.InputButtonLocal.TabStop = true;
+            this.InputButtonLocal.Text = "Local";
+            this.InputButtonLocal.UseVisualStyleBackColor = true;
+            this.InputButtonLocal.CheckedChanged += new System.EventHandler(this.InputButtonLocal_CheckedChanged);
+            // 
+            // InputButtonRemote
+            // 
+            this.InputButtonRemote.AutoSize = true;
+            this.InputButtonRemote.Location = new System.Drawing.Point(9, 55);
+            this.InputButtonRemote.Name = "InputButtonRemote";
+            this.InputButtonRemote.Size = new System.Drawing.Size(91, 24);
+            this.InputButtonRemote.TabIndex = 1;
+            this.InputButtonRemote.TabStop = true;
+            this.InputButtonRemote.Text = "Remote";
+            this.InputButtonRemote.UseVisualStyleBackColor = true;
+            this.InputButtonRemote.CheckedChanged += new System.EventHandler(this.InputButtonRemote_CheckedChanged);
+            // 
+            // InputRemoteTextBox
+            // 
+            this.InputRemoteTextBox.Enabled = false;
+            this.InputRemoteTextBox.ForeColor = System.Drawing.Color.Gray;
+            this.InputRemoteTextBox.Location = new System.Drawing.Point(35, 85);
+            this.InputRemoteTextBox.Name = "InputRemoteTextBox";
+            this.InputRemoteTextBox.Size = new System.Drawing.Size(224, 26);
+            this.InputRemoteTextBox.TabIndex = 2;
+            this.InputRemoteTextBox.Text = "Enter IP address";
+            this.InputRemoteTextBox.Enter += new System.EventHandler(this.InputRemoteTextBox_Enter);
+            this.InputRemoteTextBox.Leave += new System.EventHandler(this.InputRemoteTextBox_Leave);
             // 
             // MainForm
             // 
@@ -189,6 +234,8 @@ namespace GUI {
             this.MapButtonsSplitContainer.ResumeLayout(false);
             this.ButtonLayout.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).EndInit();
+            this.InputOptionsBox.ResumeLayout(false);
+            this.InputOptionsBox.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -202,7 +249,10 @@ namespace GUI {
         private System.Windows.Forms.TableLayoutPanel ButtonLayout;
         private System.Windows.Forms.Button ClearListButton;
         private System.Windows.Forms.Button ResetMapButton;
-        private System.Windows.Forms.Button IoCButton;
+        private System.Windows.Forms.GroupBox InputOptionsBox;
+        private System.Windows.Forms.TextBox InputRemoteTextBox;
+        private System.Windows.Forms.RadioButton InputButtonRemote;
+        private System.Windows.Forms.RadioButton InputButtonLocal;
     }
 }
 

@@ -99,7 +99,6 @@ namespace GUI {
             }
         }
 
-        // Add single marker
         private void AddMarker(double lat, double lng, bool isIoC = false) {
             PointLatLng point = new PointLatLng(lat, lng);
 
@@ -114,7 +113,6 @@ namespace GUI {
             DrawLineToReference(point, isIoC);
         }
 
-        // Draw line from reference point to marker
         private void DrawLineToReference(PointLatLng destination, bool isIoC) {
             List<PointLatLng> points = new List<PointLatLng> {
                 referencePoint,
@@ -133,41 +131,46 @@ namespace GUI {
             // Save UI state
             int scrollIndex = Math.Max(IPDataList.FirstDisplayedScrollingRowIndex, 0);
             int selectedRowIndex = IPDataList.CurrentCell?.RowIndex ?? -1;
-            string selectedColumnName = IPDataList.CurrentCell?.OwningColumn?.Name;
+            Console.WriteLine(selectedRowIndex);
             string sortColumn = IPDataList.SortedColumn?.Name;
             ListSortDirection sortDirection = IPDataList.SortOrder == SortOrder.Descending
                 ? ListSortDirection.Descending
                 : ListSortDirection.Ascending;
 
-            try {
-                string connectionString =
-                    $"Data Source=..\\..\\..\\..\\backend\\connections.db";
+            if (InputButtonLocal.Enabled) {
+                try {
+                    string connectionString =
+                        $"Data Source=..\\..\\..\\..\\backend\\connections.db";
 
-                // Get data from database
-                using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
-                    connection.Open();
+                    // Get data from database
+                    using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
+                        connection.Open();
 
-                    // Fill data into new DataTable
-                    string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
-                    SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
-                    dt = new DataTable();
-                    adapter.Fill(dt);
+                        // Fill data into new DataTable
+                        string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
+                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
+                        dt = new DataTable();
+                        adapter.Fill(dt);
 
-                    // Fill DataTable into DataGridView but hide Lat and Lon columns
-                    IPDataList.DataSource = dt;
-                    IPDataList.Columns["lat"].Visible = false;
-                    IPDataList.Columns["lon"].Visible = false;
+                        // Fill DataTable into DataGridView but hide Lat and Lon columns
+                        IPDataList.DataSource = dt;
+                        IPDataList.Columns["lat"].Visible = false;
+                        IPDataList.Columns["lon"].Visible = false;
+                    }
+                } catch (Exception e) {
+                    Console.WriteLine(e);
                 }
-            } catch (Exception e) {
-                Console.WriteLine(e);
+            } else if (InputButtonRemote.Enabled) {
+                string targetIP = InputRemoteTextBox.Text;
             }
 
             // Restore UI state
-            if (scrollIndex < IPDataList.Rows.Count)
+            if(scrollIndex < IPDataList.Rows.Count)
                 IPDataList.FirstDisplayedScrollingRowIndex = scrollIndex;
 
-            if (selectedRowIndex >= 0 && !string.IsNullOrEmpty(selectedColumnName)) {
-                IPDataList.CurrentCell = IPDataList.Rows[selectedRowIndex].Cells[selectedColumnName];
+            if (selectedRowIndex >= 0) {
+                IPDataList.Rows[selectedRowIndex].Selected = true;
+                IpAddressList_OnRowSelected(IPDataList.Rows[selectedRowIndex], EventArgs.Empty);
             }
 
             if (!string.IsNullOrEmpty(sortColumn)) {
@@ -176,6 +179,30 @@ namespace GUI {
         }
 
         // Onclick events
+        private void IpAddressList_OnRowSelected(object sender, EventArgs e) {
+            if (IPDataList.SelectedRows.Count == 0 || markersOverlay == null) {
+                return;
+            }
+
+            DataGridViewRow row = IPDataList.SelectedRows[0];
+
+            // Check if row contains coordinates
+            if (row.Cells["lat"].Value == DBNull.Value || row.Cells["lon"].Value == DBNull.Value)
+                return;
+
+            double lat = Convert.ToDouble(row.Cells["lat"].Value);
+            double lng = Convert.ToDouble(row.Cells["lon"].Value);
+
+            // Update the corresponding marker
+            for (int i = 0; i < markersOverlay.Markers.Count; i++) {
+                GMapMarker marker = markersOverlay.Markers[i];
+
+                if (marker.Position.Lat == lat && marker.Position.Lng == lng) {
+                    markersOverlay.Markers[i] = new GMarkerGoogle(marker.Position, GMarkerGoogleType.blue_dot);
+                }
+            }
+        }
+
         private void Map_OnMarkerClick(GMapMarker item, MouseEventArgs e) {
             // Retrieve coordinates
             var coordinates = item.Tag as dynamic;
@@ -183,46 +210,17 @@ namespace GUI {
             double lng = coordinates.Lng;
 
             // Highlight correct row in DataGridView
-            foreach (DataGridViewRow row in IPDataList.Rows) {
+            foreach(DataGridViewRow row in IPDataList.Rows) {
                 double rowLat = Convert.ToDouble(row.Cells["lat"].Value);
                 double rowLng = Convert.ToDouble(row.Cells["lon"].Value);
 
                 // If lat/lng match, select and highlight the row
-                if (rowLat == lat && rowLng == lng) {
+                if(rowLat == lat && rowLng == lng) {
                     row.Selected = true;
                     IPDataList.FirstDisplayedScrollingRowIndex = row.Index;
                     break;
                 }
             }
-        }
-
-        // Used to be OnCellClick... seems to have no effect :/
-        private void IpAddressList_OnCellChanged(object sender, EventArgs e) {
-            DataGridViewCell cell = IPDataList.CurrentCell;
-
-            // Check if clicked cell is not a header
-            if(cell != null && cell.RowIndex > 0 && cell.ColumnIndex > 0) {
-                DataGridViewRow row = IPDataList.Rows[cell.RowIndex];
-
-                double lat = Convert.ToDouble(row.Cells["lat"].Value);
-                double lng = Convert.ToDouble(row.Cells["lon"].Value);
-
-                // Foreach to get mutable object
-                for(int i = 0; i < markersOverlay.Markers.Count; i++) {
-                    GMapMarker marker = markersOverlay.Markers[i];
-
-                    if(marker.Position.Lat == lat && marker.Position.Lng == lng) {
-                        markersOverlay.Markers[i] = new GMarkerGoogle(marker.Position, GMarkerGoogleType.blue_dot);
-                    }
-                }
-            }
-        }
-
-        private void IoCButton_Click(object sender, EventArgs e) {
-            Console.WriteLine("Opening IoC window...");
-
-            IoC secondForm = new IoC();
-            secondForm.Show();
         }
 
         private void ResetMapButton_Click(object sender, EventArgs e) {
@@ -233,15 +231,46 @@ namespace GUI {
         }
 
         private void ClearListButton_Click(object sender, EventArgs e) {
+            string key = File.ReadAllText("..\\..\\..\\GUI\\.env");
+            key = key.Substring(9, key.Length - 10);
+
             Console.WriteLine("Clearing IP Data list...");
 
             HttpClient client = new HttpClient {
-                BaseAddress = new Uri("http://127.0.0.1:5000/cleardb")
+                BaseAddress = new Uri($"http://127.0.0.1:5000/cleardb?key={key}")
             };
 
-            HttpResponseMessage response = client.PostAsync("http://127.0.0.1:5000/cleardb", null).Result;
+            HttpResponseMessage response = client.PostAsync($"http://127.0.0.1:5000/cleardb?key={key}", null).Result;
 
             client.Dispose();
+        }
+
+        private void InputButtonLocal_CheckedChanged(object sender, EventArgs e) {
+            if (InputButtonLocal.Checked) {
+                InputRemoteTextBox.Enabled = false;
+            }
+        }
+
+        private void InputButtonRemote_CheckedChanged(object sender, EventArgs e) {
+            if (InputButtonRemote.Checked) {
+                InputRemoteTextBox.Enabled = true;
+            }
+        }
+
+        private void InputRemoteTextBox_Enter(object sender, EventArgs e) {
+            // If the user hasn't typed anything yet, clear the hint text
+            if (InputRemoteTextBox.Text == "Enter IP address") {
+                InputRemoteTextBox.Text = "";
+                InputRemoteTextBox.ForeColor = Color.Black; 
+            }
+        }
+
+        private void InputRemoteTextBox_Leave(object sender, EventArgs e) {
+            // If the user leaves the textbox empty, restore the hint text
+            if (string.IsNullOrWhiteSpace(InputRemoteTextBox.Text)) {
+                InputRemoteTextBox.Text = "Enter IP address";
+                InputRemoteTextBox.ForeColor = Color.Gray;
+            }
         }
     }
 }
