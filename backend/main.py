@@ -1,8 +1,6 @@
-import os
-from datetime import datetime, timezone
-
 from database import *
-from flask import Flask, request, abort
+from datetime import datetime, timezone
+from flask import Flask, request
 from dotenv import load_dotenv
 from pathlib import Path
 import platform
@@ -10,6 +8,7 @@ import threading
 import psutil
 import requests
 import json
+import os
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -73,12 +72,13 @@ def network_scan():
     threading.Timer(1, network_scan).start()
 
 def fetch_locations():
-    threading.Timer(10, fetch_locations).start()
     missing = missing_location()[:100]
-    url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query,lat,lon"
-    data = json.dumps(missing)
-    response = requests.post(url, data=data)
-    update_locations(response.json())
+    if missing:
+        url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query,lat,lon"
+        data = json.dumps(missing)
+        response = requests.post(url, data=data)
+        update_locations(response.json())
+    threading.Timer(10, fetch_locations).start()
 
 @app.route("/getdb", methods=["GET"])
 def get_database_endpoint():
@@ -111,9 +111,12 @@ def get_sshlog_endpoint():
     if key not in API_KEY:
         return "Invalid API key.", 401
     else:
-        data = json.dumps(unflushed_log)
-        unflushed_log = []
-        return data, 200
+        if platform.system() == "Linux":
+            data = json.dumps(unflushed_log)
+            unflushed_log = []
+            return data, 200
+        else:
+            return "Endpoint unavailable on target's operating system.", 501
 
 if __name__ == "__main__":
     network_scan()
