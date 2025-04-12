@@ -26,8 +26,8 @@ namespace GUI {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.MainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.MapButtonsSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.MainSplit = new System.Windows.Forms.SplitContainer();
+            this.MapButtonsSplit = new System.Windows.Forms.SplitContainer();
             this.Map = new GMap.NET.WindowsForms.GMapControl();
             this.ButtonLayout = new System.Windows.Forms.TableLayoutPanel();
             this.ClearListButton = new System.Windows.Forms.Button();
@@ -37,53 +37,53 @@ namespace GUI {
             this.InputButtonLocal = new System.Windows.Forms.RadioButton();
             this.InputButtonRemote = new System.Windows.Forms.RadioButton();
             this.InputRemoteTextBox = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
-            this.MainSplitContainer.Panel1.SuspendLayout();
-            this.MainSplitContainer.Panel2.SuspendLayout();
-            this.MainSplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).BeginInit();
-            this.MapButtonsSplitContainer.Panel1.SuspendLayout();
-            this.MapButtonsSplitContainer.Panel2.SuspendLayout();
-            this.MapButtonsSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplit)).BeginInit();
+            this.MainSplit.Panel1.SuspendLayout();
+            this.MainSplit.Panel2.SuspendLayout();
+            this.MainSplit.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplit)).BeginInit();
+            this.MapButtonsSplit.Panel1.SuspendLayout();
+            this.MapButtonsSplit.Panel2.SuspendLayout();
+            this.MapButtonsSplit.SuspendLayout();
             this.ButtonLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).BeginInit();
             this.InputOptionsBox.SuspendLayout();
             this.SuspendLayout();
             // 
-            // MainSplitContainer
+            // MainSplit
             // 
-            this.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.MainSplitContainer.Name = "MainSplitContainer";
+            this.MainSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainSplit.Location = new System.Drawing.Point(0, 0);
+            this.MainSplit.Name = "MainSplit";
             // 
-            // MainSplitContainer.Panel1
+            // MainSplit.Panel1
             // 
-            this.MainSplitContainer.Panel1.Controls.Add(this.MapButtonsSplitContainer);
+            this.MainSplit.Panel1.Controls.Add(this.MapButtonsSplit);
             // 
-            // MainSplitContainer.Panel2
+            // MainSplit.Panel2
             // 
-            this.MainSplitContainer.Panel2.Controls.Add(this.IPDataList);
-            this.MainSplitContainer.Size = new System.Drawing.Size(1280, 720);
-            this.MainSplitContainer.SplitterDistance = 813;
-            this.MainSplitContainer.TabIndex = 0;
+            this.MainSplit.Panel2.Controls.Add(this.IPDataList);
+            this.MainSplit.Size = new System.Drawing.Size(1280, 720);
+            this.MainSplit.SplitterDistance = 813;
+            this.MainSplit.TabIndex = 0;
             // 
-            // MapButtonsSplitContainer
+            // MapButtonsSplit
             // 
-            this.MapButtonsSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MapButtonsSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.MapButtonsSplitContainer.Name = "MapButtonsSplitContainer";
-            this.MapButtonsSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.MapButtonsSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MapButtonsSplit.Location = new System.Drawing.Point(0, 0);
+            this.MapButtonsSplit.Name = "MapButtonsSplit";
+            this.MapButtonsSplit.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // MapButtonsSplitContainer.Panel1
+            // MapButtonsSplit.Panel1
             // 
-            this.MapButtonsSplitContainer.Panel1.Controls.Add(this.Map);
+            this.MapButtonsSplit.Panel1.Controls.Add(this.Map);
             // 
-            // MapButtonsSplitContainer.Panel2
+            // MapButtonsSplit.Panel2
             // 
-            this.MapButtonsSplitContainer.Panel2.Controls.Add(this.ButtonLayout);
-            this.MapButtonsSplitContainer.Size = new System.Drawing.Size(813, 720);
-            this.MapButtonsSplitContainer.SplitterDistance = 542;
-            this.MapButtonsSplitContainer.TabIndex = 0;
+            this.MapButtonsSplit.Panel2.Controls.Add(this.ButtonLayout);
+            this.MapButtonsSplit.Size = new System.Drawing.Size(813, 720);
+            this.MapButtonsSplit.SplitterDistance = 542;
+            this.MapButtonsSplit.TabIndex = 0;
             // 
             // Map
             // 
@@ -220,18 +220,18 @@ namespace GUI {
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(1280, 720);
-            this.Controls.Add(this.MainSplitContainer);
+            this.Controls.Add(this.MainSplit);
             this.Name = "MainForm";
             this.Text = "IP Tracker";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.MainSplitContainer.Panel1.ResumeLayout(false);
-            this.MainSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).EndInit();
-            this.MainSplitContainer.ResumeLayout(false);
-            this.MapButtonsSplitContainer.Panel1.ResumeLayout(false);
-            this.MapButtonsSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).EndInit();
-            this.MapButtonsSplitContainer.ResumeLayout(false);
+            this.MainSplit.Panel1.ResumeLayout(false);
+            this.MainSplit.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplit)).EndInit();
+            this.MainSplit.ResumeLayout(false);
+            this.MapButtonsSplit.Panel1.ResumeLayout(false);
+            this.MapButtonsSplit.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplit)).EndInit();
+            this.MapButtonsSplit.ResumeLayout(false);
             this.ButtonLayout.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).EndInit();
             this.InputOptionsBox.ResumeLayout(false);
@@ -242,8 +242,8 @@ namespace GUI {
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer MainSplitContainer;
-        private System.Windows.Forms.SplitContainer MapButtonsSplitContainer;
+        private System.Windows.Forms.SplitContainer MainSplit;
+        private System.Windows.Forms.SplitContainer MapButtonsSplit;
         private System.Windows.Forms.DataGridView IPDataList;
         private GMap.NET.WindowsForms.GMapControl Map;
         private System.Windows.Forms.TableLayoutPanel ButtonLayout;

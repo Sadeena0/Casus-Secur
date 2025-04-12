@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SQLite;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using GMap.NET.MapProviders;
 using GMap.NET.WindowsForms.Markers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GUI {
     public partial class MainForm : Form {
@@ -47,7 +47,7 @@ namespace GUI {
 
         // Update loop
         private void UpdateTimer_Tick(object sender, EventArgs e) {
-            Console.WriteLine("Updating...");
+            Console.Write("Updating... ");
 
             // Update IpAdDressList
             UpdateIpAddressList();
@@ -69,6 +69,106 @@ namespace GUI {
             Map.Zoom = 2;
             Map.ShowCenter = false;
             Map.DragButton = MouseButtons.Left;
+        }
+
+        // Update IP data list
+        private void UpdateIpAddressList() {
+            // Save UI state
+            int scrollIndex = Math.Max(IPDataList.FirstDisplayedScrollingRowIndex, 0);
+            string selectedIp = IPDataList.CurrentRow?.Cells["ip"]?.Value?.ToString();
+            string sortColumn = IPDataList.SortedColumn?.Name;
+            ListSortDirection sortDirection = IPDataList.SortOrder == SortOrder.Descending
+                ? ListSortDirection.Descending
+                : ListSortDirection.Ascending;
+
+            dt = new DataTable();
+
+            // Get data locally or remotely
+            try {
+                if(InputButtonLocal.Checked) {
+                    Console.WriteLine("Getting data from local");
+
+                    string connectionString =
+                        $"Data Source=..\\..\\..\\..\\backend\\connections.db";
+
+                    // Get data from database
+                    using(SQLiteConnection connection = new SQLiteConnection(connectionString)) {
+                        connection.Open();
+
+                        // Fill data into new DataTable
+                        string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
+                        new SQLiteDataAdapter(query, connection).Fill(dt);
+                    }
+                } else if(InputButtonRemote.Checked) {
+                    Console.WriteLine("Getting data from remote");
+
+                    string targetIP = InputRemoteTextBox.Text;
+
+                    // Verify if valid IP Address
+                    if(IPAddress.TryParse(targetIP, out _)) {
+                        string key = File.ReadAllText("..\\..\\..\\GUI\\.env");
+                        key = key.Substring(9, key.Length - 10);
+
+                        // Make client, send request and save response
+                        HttpClient client = new HttpClient();
+                        HttpResponseMessage response =
+                            client.GetAsync($"http://{targetIP}:5000/getdb?key={key}").Result;
+
+                        // Parse into array of arrays
+                        var jsonArray =
+                            JsonConvert.DeserializeObject<JArray>(response.Content.ReadAsStringAsync().Result);
+
+                        // Create Datatable with columns
+                        dt.Columns.Add("ip", typeof(string));
+                        dt.Columns.Add("appname", typeof(string));
+                        dt.Columns.Add("times", typeof(int));
+                        dt.Columns.Add("location", typeof(string));
+                        dt.Columns.Add("lat", typeof(double));
+                        dt.Columns.Add("lon", typeof(double));
+
+                        // Populate DataTable
+                        foreach(var item in jsonArray) {
+                            string ip = item[0]?.ToString() ?? "Unknown IP";
+                            string appname = item[3]?.ToString() ?? "Unknown App";
+                            string location = item[4]?.ToString() ?? "Unknown Location";
+                            int.TryParse(item[5]?.ToString(), out int times);
+                            double.TryParse(item[6]?.ToString(), out double lat);
+                            double.TryParse(item[7]?.ToString(), out double lng);
+
+                            dt.Rows.Add(ip, appname, times, location, lat, lng);
+                        }
+
+                        client.Dispose();
+                    }
+                }
+
+                // Fill DataTable into DataGridView but hide Lat and Lon columns
+                IPDataList.DataSource = dt;
+
+                if(IPDataList.Columns.Contains("lat")) IPDataList.Columns["lat"].Visible = false;
+                if(IPDataList.Columns.Contains("lon")) IPDataList.Columns["lon"].Visible = false;
+            } catch(Exception e) {
+                Console.WriteLine(e);
+            }
+
+            // Restore UI state
+            if(scrollIndex < IPDataList.Rows.Count)
+                IPDataList.FirstDisplayedScrollingRowIndex = scrollIndex;
+
+            if(!string.IsNullOrEmpty(selectedIp)) {
+                foreach(DataGridViewRow row in IPDataList.Rows) {
+                    if(row.Cells["ip"].Value?.ToString() == selectedIp) {
+                        row.Selected = true;
+                        IPDataList.CurrentCell = row.Cells[0];
+                        IpAddressList_OnRowSelected(row, EventArgs.Empty); // <--
+                        break;
+                    }
+                }
+            }
+
+            if(!string.IsNullOrEmpty(sortColumn)) {
+                IPDataList.Sort(IPDataList.Columns[sortColumn], sortDirection);
+            }
         }
 
         // Update markers from internal DataTable
@@ -126,58 +226,6 @@ namespace GUI {
             routeOverlay.Routes.Add(route);
         }
 
-        // Update IP data list
-        private void UpdateIpAddressList() {
-            // Save UI state
-            int scrollIndex = Math.Max(IPDataList.FirstDisplayedScrollingRowIndex, 0);
-            int selectedRowIndex = IPDataList.CurrentCell?.RowIndex ?? -1;
-            Console.WriteLine(selectedRowIndex);
-            string sortColumn = IPDataList.SortedColumn?.Name;
-            ListSortDirection sortDirection = IPDataList.SortOrder == SortOrder.Descending
-                ? ListSortDirection.Descending
-                : ListSortDirection.Ascending;
-
-            if (InputButtonLocal.Enabled) {
-                try {
-                    string connectionString =
-                        $"Data Source=..\\..\\..\\..\\backend\\connections.db";
-
-                    // Get data from database
-                    using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
-                        connection.Open();
-
-                        // Fill data into new DataTable
-                        string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
-                        SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
-                        dt = new DataTable();
-                        adapter.Fill(dt);
-
-                        // Fill DataTable into DataGridView but hide Lat and Lon columns
-                        IPDataList.DataSource = dt;
-                        IPDataList.Columns["lat"].Visible = false;
-                        IPDataList.Columns["lon"].Visible = false;
-                    }
-                } catch (Exception e) {
-                    Console.WriteLine(e);
-                }
-            } else if (InputButtonRemote.Enabled) {
-                string targetIP = InputRemoteTextBox.Text;
-            }
-
-            // Restore UI state
-            if(scrollIndex < IPDataList.Rows.Count)
-                IPDataList.FirstDisplayedScrollingRowIndex = scrollIndex;
-
-            if (selectedRowIndex >= 0) {
-                IPDataList.Rows[selectedRowIndex].Selected = true;
-                IpAddressList_OnRowSelected(IPDataList.Rows[selectedRowIndex], EventArgs.Empty);
-            }
-
-            if (!string.IsNullOrEmpty(sortColumn)) {
-                IPDataList.Sort(IPDataList.Columns[sortColumn], sortDirection);
-            }
-        }
-
         // Onclick events
         private void IpAddressList_OnRowSelected(object sender, EventArgs e) {
             if (IPDataList.SelectedRows.Count == 0 || markersOverlay == null) {
@@ -210,12 +258,12 @@ namespace GUI {
             double lng = coordinates.Lng;
 
             // Highlight correct row in DataGridView
-            foreach(DataGridViewRow row in IPDataList.Rows) {
+            foreach (DataGridViewRow row in IPDataList.Rows) {
                 double rowLat = Convert.ToDouble(row.Cells["lat"].Value);
                 double rowLng = Convert.ToDouble(row.Cells["lon"].Value);
 
                 // If lat/lng match, select and highlight the row
-                if(rowLat == lat && rowLng == lng) {
+                if (rowLat == lat && rowLng == lng) {
                     row.Selected = true;
                     IPDataList.FirstDisplayedScrollingRowIndex = row.Index;
                     break;
@@ -261,7 +309,7 @@ namespace GUI {
             // If the user hasn't typed anything yet, clear the hint text
             if (InputRemoteTextBox.Text == "Enter IP address") {
                 InputRemoteTextBox.Text = "";
-                InputRemoteTextBox.ForeColor = Color.Black; 
+                InputRemoteTextBox.ForeColor = Color.Black;
             }
         }
 
