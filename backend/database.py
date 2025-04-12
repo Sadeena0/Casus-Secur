@@ -38,6 +38,14 @@ def add_records(records):
                 cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times) VALUES(?,?,?,?,?) "
                             , (record[0], record[1], record[2], record[3], 1))
 
+def fetch_records():
+    connection = sqlite3.connect('connections.db')
+    with connection as conn:
+        cur = conn.cursor()
+        res = cur.execute("SELECT * FROM ip_addresses ORDER BY times")
+        records = res.fetchall()
+        return records
+
 def clear_records():
     connection = sqlite3.connect('connections.db')
     with connection as conn:
