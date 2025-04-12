@@ -170,7 +170,7 @@ namespace GUI {
             this.IPDataList.RowTemplate.Height = 24;
             this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
-            this.IPDataList.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.IpAddressList_OnCellClick);
+            this.IPDataList.CurrentCellChanged += new System.EventHandler(this.IpAddressList_OnCellChanged);
             // 
             // MainForm
             // 

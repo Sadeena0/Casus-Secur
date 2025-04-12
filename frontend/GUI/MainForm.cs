@@ -19,9 +19,9 @@ namespace GUI {
     public partial class MainForm : Form {
         private GMapOverlay markersOverlay;
         private GMapOverlay routeOverlay;
-        private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
-
         private DataTable dt = new DataTable();
+
+        private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
 
         private readonly HashSet<string> IoCList = new HashSet<string>(
             File.ReadAllLines($"..\\..\\..\\GUI\\blacklist.txt")
@@ -45,6 +45,7 @@ namespace GUI {
             updateTimer.Start();
         }
 
+        // Update loop
         private void UpdateTimer_Tick(object sender, EventArgs e) {
             Console.WriteLine("Updating...");
 
@@ -129,8 +130,14 @@ namespace GUI {
 
         // Update IP data list
         private void UpdateIpAddressList() {
-            // Clear list
-            dt = new DataTable();
+            // Save UI state
+            int scrollIndex = Math.Max(IPDataList.FirstDisplayedScrollingRowIndex, 0);
+            int selectedRowIndex = IPDataList.CurrentCell?.RowIndex ?? -1;
+            string selectedColumnName = IPDataList.CurrentCell?.OwningColumn?.Name;
+            string sortColumn = IPDataList.SortedColumn?.Name;
+            ListSortDirection sortDirection = IPDataList.SortOrder == SortOrder.Descending
+                ? ListSortDirection.Descending
+                : ListSortDirection.Ascending;
 
             try {
                 string connectionString =
@@ -140,17 +147,31 @@ namespace GUI {
                 using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
                     connection.Open();
 
+                    // Fill data into new DataTable
                     string query = "SELECT ip, appname, times, location, lat, lon FROM ip_addresses";
                     SQLiteDataAdapter adapter = new SQLiteDataAdapter(query, connection);
+                    dt = new DataTable();
                     adapter.Fill(dt);
 
-                    // Fill data into DataGridView but hide Lat and Lon columns
+                    // Fill DataTable into DataGridView but hide Lat and Lon columns
                     IPDataList.DataSource = dt;
                     IPDataList.Columns["lat"].Visible = false;
                     IPDataList.Columns["lon"].Visible = false;
                 }
             } catch (Exception e) {
                 Console.WriteLine(e);
+            }
+
+            // Restore UI state
+            if (scrollIndex < IPDataList.Rows.Count)
+                IPDataList.FirstDisplayedScrollingRowIndex = scrollIndex;
+
+            if (selectedRowIndex >= 0 && !string.IsNullOrEmpty(selectedColumnName)) {
+                IPDataList.CurrentCell = IPDataList.Rows[selectedRowIndex].Cells[selectedColumnName];
+            }
+
+            if (!string.IsNullOrEmpty(sortColumn)) {
+                IPDataList.Sort(IPDataList.Columns[sortColumn], sortDirection);
             }
         }
 
@@ -175,10 +196,13 @@ namespace GUI {
             }
         }
 
-        private void IpAddressList_OnCellClick(object sender, DataGridViewCellEventArgs e) {
+        // Used to be OnCellClick... seems to have no effect :/
+        private void IpAddressList_OnCellChanged(object sender, EventArgs e) {
+            DataGridViewCell cell = IPDataList.CurrentCell;
+
             // Check if clicked cell is not a header
-            if(e.RowIndex > 0 && e.ColumnIndex > 0) {
-                DataGridViewRow row = IPDataList.Rows[e.RowIndex];
+            if(cell != null && cell.RowIndex > 0 && cell.ColumnIndex > 0) {
+                DataGridViewRow row = IPDataList.Rows[cell.RowIndex];
 
                 double lat = Convert.ToDouble(row.Cells["lat"].Value);
                 double lng = Convert.ToDouble(row.Cells["lon"].Value);
