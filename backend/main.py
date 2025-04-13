@@ -64,14 +64,13 @@ def network_scan():
                             match = re.search(r"from (\d+\.\d+\.\d+\.\d+) port (\d+)", line.strip())
                             if match:
                                 ip = match.group(1)
-                                port = int(match.group(2))
-                                parsed_log.append((ip, port))
+                                parsed_log.append(ip)
                     except Exception as e:
                         print(f"Error parsing line: {line.strip()}, {e}")
         if parsed_log:
             parsed_log = list(dict.fromkeys(parsed_log))
-            for (ip, port) in parsed_log:
-                log_entries.append((ip, port, -1, "SSH"))
+            for ip in parsed_log:
+                log_entries.append((ip, -1,  -1, "SSH"))
     add_records(log_entries)
     last_check = datetime.now(timezone.utc)
     threading.Timer(1, network_scan).start()
