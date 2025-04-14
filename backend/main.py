@@ -1,20 +1,24 @@
-import os
-from datetime import datetime, timezone
-
+from collections import defaultdict
+from scapy.sendrecv import sniff
 from database import *
-from flask import Flask, request, abort
+from datetime import datetime, timezone
+from flask import Flask, request
 from dotenv import load_dotenv
 from pathlib import Path
+from scapy.layers.inet import IP, TCP, UDP
 import platform
 import threading
 import psutil
 import requests
 import json
+import os
+import re
+
+bytes_sent = defaultdict(int)
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 last_check = datetime.now(timezone.utc)
-unflushed_log = []
 
 match open_connection():
     case 0:
@@ -27,7 +31,6 @@ match open_connection():
         intialise_database()
 
 app = Flask(__name__)
-
 
 def network_scan():
     global last_check
@@ -49,7 +52,8 @@ def network_scan():
             else:
                 app_name = "System"
 
-            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name))
+            sent = bytes_sent.get((conn.raddr[0], conn.raddr[1]), 0)
+            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name, sent))
     if platform.system() == "Linux":
         auth_log = Path("/var/log/auth.log")
         parsed_log = []
@@ -62,23 +66,28 @@ def network_scan():
                         timestamp_str = line[:32]
                         timestamp = datetime.fromisoformat(timestamp_str)
                         if timestamp > last_check:
-                            parsed_log.append(line.strip())
+                            match = re.search(r"from (\d+\.\d+\.\d+\.\d+) port (\d+)", line.strip())
+                            if match:
+                                ip = match.group(1)
+                                parsed_log.append(ip)
                     except Exception as e:
                         print(f"Error parsing line: {line.strip()}, {e}")
         if parsed_log:
             parsed_log = list(dict.fromkeys(parsed_log))
-            unflushed_log.extend(parsed_log)
+            for ip in parsed_log:
+                log_entries.append((ip, -1,  -1, "SSH"))
     add_records(log_entries)
     last_check = datetime.now(timezone.utc)
     threading.Timer(1, network_scan).start()
 
 def fetch_locations():
-    threading.Timer(10, fetch_locations).start()
     missing = missing_location()[:100]
-    url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query,lat,lon"
-    data = json.dumps(missing)
-    response = requests.post(url, data=data)
-    update_locations(response.json())
+    if missing:
+        url = "http://ip-api.com/batch?fields=status,country,countryCode,region,regionName,city,isp,org,query,lat,lon"
+        data = json.dumps(missing)
+        response = requests.post(url, data=data)
+        update_locations(response.json())
+    threading.Timer(10, fetch_locations).start()
 
 @app.route("/getdb", methods=["GET"])
 def get_database_endpoint():
@@ -102,18 +111,22 @@ def clear_database_endpoint():
         clear_records()
         return "Database cleared.", 200
 
-@app.route("/getsshlog", methods=["GET"])
-def get_sshlog_endpoint():
-    global unflushed_log
-    key = request.args.get("key")
-    if key is None:
-        return "No API key provided.", 400
-    if key not in API_KEY:
-        return "Invalid API key.", 401
-    else:
-        data = json.dumps(unflushed_log)
-        unflushed_log = []
-        return data, 200
+def packet_callback(packet):
+    if IP in packet and (TCP in packet or UDP in packet):
+        dst_ip = packet[IP].dst
+        dst_port = packet[TCP].dport if TCP in packet else packet[UDP].dport
+        size = len(packet)
+        bytes_sent[(dst_ip, dst_port)] += size
+
+def start_sniffing():
+    try:
+        sniff(filter="ip", prn=packet_callback, store=0)
+    except Exception as e:
+        print("No drivers detected. Byte analysis unavailable.")
+        print(f"Error: {e}")
+
+sniff_thread = threading.Thread(target=start_sniffing, daemon=True)
+sniff_thread.start()
 
 if __name__ == "__main__":
     network_scan()

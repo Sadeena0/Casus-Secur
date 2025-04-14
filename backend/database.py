@@ -21,7 +21,8 @@ def intialise_database():
     with connection as conn:
         cur = conn.cursor()
         cur.execute("CREATE TABLE ip_addresses(ip varchar(255), port int, pid int, appname varchar(255),"
-                    " location varchar(255), times int CHECK(times>0), lat float, lon float, PRIMARY KEY(ip, port))")
+                    " location varchar(255), times int CHECK(times>0), lat float, lon float, sent int CHECK(sent>=0),"
+                    " PRIMARY KEY(ip, port))")
 
 def add_records(records):
     connection = sqlite3.connect('connections.db')
@@ -30,13 +31,15 @@ def add_records(records):
         for record in records:
             res = cur.execute("SELECT ip FROM ip_addresses WHERE ip=? AND port=?", (record[0], record[1]))
             if res.fetchone():
-                cur.execute("SELECT times from ip_addresses WHERE ip=? AND port=?", (record[0], record[1]))
-                times = cur.fetchone()[0] + 1
-                cur.execute("UPDATE ip_addresses SET times=? WHERE ip=? AND port=?", (times, record[0], record[1]))
+                cur.execute("SELECT times, sent from ip_addresses WHERE ip=? AND port=?", (record[0], record[1]))
+                result = cur.fetchone()
+                times = result[0] + 1
+                sent = result[1] + record[4]
+                cur.execute("UPDATE ip_addresses SET times=?,sent=? WHERE ip=? AND port=?", (times, sent, record[0], record[1]))
                 pass
             else:
-                cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times) VALUES(?,?,?,?,?) "
-                            , (record[0], record[1], record[2], record[3], 1))
+                cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times,sent) VALUES(?,?,?,?,?,?) "
+                            , (record[0], record[1], record[2], record[3], 1, record[4]))
 
 def fetch_records():
     connection = sqlite3.connect('connections.db')
