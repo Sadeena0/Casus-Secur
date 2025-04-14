@@ -5,6 +5,8 @@ def open_connection():
     try:
         connection = sqlite3.connect('connections.db')
         with connection as conn:
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA busy_timeout = 100")
             cur = conn.cursor()
             res = cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ip_addresses';")
             if res.fetchone():
