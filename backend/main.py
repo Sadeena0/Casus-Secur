@@ -1,8 +1,11 @@
+from collections import defaultdict
+from scapy.sendrecv import sniff
 from database import *
 from datetime import datetime, timezone
 from flask import Flask, request
 from dotenv import load_dotenv
 from pathlib import Path
+from scapy.layers.inet import IP, TCP, UDP
 import platform
 import threading
 import psutil
@@ -10,6 +13,8 @@ import requests
 import json
 import os
 import re
+
+bytes_sent = defaultdict(int)
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
@@ -26,7 +31,6 @@ match open_connection():
         intialise_database()
 
 app = Flask(__name__)
-
 
 def network_scan():
     global last_check
@@ -48,7 +52,8 @@ def network_scan():
             else:
                 app_name = "System"
 
-            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name))
+            sent = bytes_sent.get((conn.raddr[0], conn.raddr[1]), 0)
+            log_entries.append((conn.raddr[0], conn.raddr[1], pid, app_name, sent))
     if platform.system() == "Linux":
         auth_log = Path("/var/log/auth.log")
         parsed_log = []
@@ -106,21 +111,22 @@ def clear_database_endpoint():
         clear_records()
         return "Database cleared.", 200
 
-# @app.route("/getsshlog", methods=["GET"])
-# def get_sshlog_endpoint():
-#     global unflushed_log
-#     key = request.args.get("key")
-#     if key is None:
-#         return "No API key provided.", 400
-#     if key not in API_KEY:
-#         return "Invalid API key.", 401
-#     else:
-#         if platform.system() == "Linux":
-#             data = json.dumps(unflushed_log)
-#             unflushed_log = []
-#             return data, 200
-#         else:
-#             return "Endpoint unavailable on target's operating system.", 501
+def packet_callback(packet):
+    if IP in packet and (TCP in packet or UDP in packet):
+        dst_ip = packet[IP].dst
+        dst_port = packet[TCP].dport if TCP in packet else packet[UDP].dport
+        size = len(packet)
+        bytes_sent[(dst_ip, dst_port)] += size
+
+def start_sniffing():
+    try:
+        sniff(filter="ip", prn=packet_callback, store=0)
+    except Exception as e:
+        print("No drivers detected. Byte analysis unavailable.")
+        print(f"Error: {e}")
+
+sniff_thread = threading.Thread(target=start_sniffing, daemon=True)
+sniff_thread.start()
 
 if __name__ == "__main__":
     network_scan()
