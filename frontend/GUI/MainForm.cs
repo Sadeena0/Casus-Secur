@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 namespace GUI {
     public partial class MainForm : Form {
-        private struct SelectedItem {
+        private readonly struct SelectedItem {
             public string Ip { get; }
             public double Lat { get; }
             public double Lng { get; }
@@ -270,20 +270,18 @@ namespace GUI {
             Map.Overlays.Add(routeOverlay);
             Map.Overlays.Add(markersOverlay);
 
-            if (!referencePoint.IsEmpty) {
-                // Add own location first
-                GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
-                markersOverlay.Markers.Add(referenceMarker);
+            // Add own location first
+            GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
+            markersOverlay.Markers.Add(referenceMarker);
 
-                // Read all rows from DataTable and draw markers
-                foreach (DataRow row in dt.Rows) {
-                    double lat = (double)row["lat"];
-                    double lng = (double)row["lon"];
-                    string ip = row["ip"]?.ToString();
-                    long sent = (long)row["sent"];
+            // Read all rows from DataTable and draw markers
+            foreach (DataRow row in dt.Rows) {
+                double lat = (double)row["lat"];
+                double lng = (double)row["lon"];
+                string ip = row["ip"]?.ToString();
+                long sent = (long)row["sent"];
 
-                    AddMarker(lat, lng, IoCList.Contains(ip), sent);
-                }
+                AddMarker(lat, lng, IoCList.Contains(ip), sent);
             }
         }
 
@@ -399,6 +397,7 @@ namespace GUI {
         }
 
         private void ClearSelectionBtn_Click(object sender, EventArgs e) {
+            dt.DefaultView.Sort = string.Empty;
             IPDataList.ClearSelection();
             IPDataList.CurrentCell = null;
             selectedItem = null;
