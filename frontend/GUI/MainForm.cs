@@ -17,6 +17,29 @@ using Newtonsoft.Json.Linq;
 
 namespace GUI {
     public partial class MainForm : Form {
+        private struct SelectedItem {
+            public string Ip { get; }
+            public double Lat { get; }
+            public double Lng { get; }
+
+            public SelectedItem(string ip, double lat, double lng) {
+                Ip = ip;
+                Lat = lat;
+                Lng = lng;
+            }
+
+            public bool MatchesRow(DataGridViewRow row) {
+                return row.Cells["ip"].Value?.ToString() == Ip &&
+                       (double)row.Cells["lat"].Value == Lat &&
+                       (double)row.Cells["lon"].Value == Lng;
+            }
+
+            public bool MatchesCoordinates(double lat, double lng) {
+                return Lat == lat && Lng == lng;
+            }
+        }
+
+
         // Initializer constants
         private const int DefaultZoom = 2;
 
@@ -28,7 +51,6 @@ namespace GUI {
         // Map stuff
         private GMapOverlay markersOverlay;
         private GMapOverlay routeOverlay;
-        private (double lat, double lng)? selectedMarkerCoords;
         private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
 
         private readonly HashSet<string> IoCList = new HashSet<string>(
@@ -38,7 +60,10 @@ namespace GUI {
         // IPDataList stuff
         private DataTable dt = new DataTable();
         private bool suppressSelectionEvent;
-        private string selectedIp;
+
+        // Tracking of selected item
+        private SelectedItem? selectedItem = null;
+
 
         public MainForm() {
             InitializeComponent();
@@ -208,9 +233,9 @@ namespace GUI {
                         IPDataList.Sort(IPDataList.Columns[sortColumn], sortDirection);
                     }
 
-                    if (!string.IsNullOrEmpty(selectedIp)) {
+                    if (selectedItem.HasValue) {
                         foreach (DataGridViewRow row in IPDataList.Rows) {
-                            if (row.Cells["ip"].Value?.ToString() == selectedIp) {
+                            if (selectedItem.Value.MatchesRow(row)) {
                                 row.Selected = true;
                                 IPDataList.CurrentCell = row.Cells[0];
                                 restoredSelection = true;
@@ -267,8 +292,7 @@ namespace GUI {
         private void AddMarker(double lat, double lng, bool isIoC, long sentBytes) {
             PointLatLng point = new PointLatLng(lat, lng);
 
-            bool isSelected = selectedMarkerCoords.HasValue && selectedMarkerCoords.Value.lat == lat &&
-                              selectedMarkerCoords.Value.lng == lng;
+            bool isSelected = selectedItem.HasValue && selectedItem.Value.MatchesCoordinates(lat, lng);
 
             GMarkerGoogleType markerType = isSelected
                 ? GMarkerGoogleType.blue_dot
@@ -322,12 +346,11 @@ namespace GUI {
             DataGridViewRow row = IPDataList.SelectedRows[0];
 
             if (row.Cells["lat"].Value is double lat && row.Cells["lon"].Value is double lon) {
-                selectedMarkerCoords = (lat, lon);
-            }
+                string ip = row.Cells["ip"].Value?.ToString();
 
-            string ip = row.Cells["ip"].Value?.ToString();
-            if (!string.IsNullOrEmpty(ip)) {
-                selectedIp = ip;
+                if (!string.IsNullOrEmpty(ip)) {
+                    selectedItem = new SelectedItem(ip, lat, lon);
+                }
             }
         }
 
@@ -337,15 +360,12 @@ namespace GUI {
             double lat = coordinates.Lat;
             double lng = coordinates.Lng;
 
-            selectedMarkerCoords = (lat, lng);
-
-            // Highlight correct row in DataGridView
             foreach (DataGridViewRow row in IPDataList.Rows) {
-                // If lat/lng match, select and highlight the row
                 if ((double)row.Cells["lat"].Value == lat && (double)row.Cells["lon"].Value == lng) {
                     string ip = row.Cells["ip"].Value?.ToString();
+
                     if (!string.IsNullOrEmpty(ip)) {
-                        selectedIp = ip;
+                        selectedItem = new SelectedItem(ip, lat, lng);
                     }
 
                     IPDataList.ClearSelection();
@@ -375,7 +395,7 @@ namespace GUI {
         private void ClearSelectionBtn_Click(object sender, EventArgs e) {
             IPDataList.ClearSelection();
             IPDataList.CurrentCell = null;
-            selectedMarkerCoords = null;
+            selectedItem = null;
         }
 
         private void InputButtonLocal_CheckedChanged(object sender, EventArgs e) {
