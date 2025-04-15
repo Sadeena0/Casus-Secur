@@ -40,7 +40,7 @@ def add_records(records):
                 cur.execute("UPDATE ip_addresses SET times=?,sent=? WHERE ip=? AND port=?", (times, sent, record[0], record[1]))
                 pass
             else:
-                cur.execute("INSERT INTO ip_addresses(ip,port,pid,appname,times,sent) VALUES(?,?,?,?,?,?) "
+                cur.execute("INSERT OR IGNORE INTO ip_addresses(ip,port,pid,appname,times,sent) VALUES(?,?,?,?,?,?) "
                             , (record[0], record[1], record[2], record[3], 1, record[4]))
 
 def fetch_records():
