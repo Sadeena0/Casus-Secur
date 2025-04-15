@@ -75,7 +75,7 @@ def network_scan():
         if parsed_log:
             parsed_log = list(dict.fromkeys(parsed_log))
             for ip in parsed_log:
-                log_entries.append((ip, -1,  -1, "SSH"))
+                log_entries.append((ip, -1,  -1, "SSH", 0))
     add_records(log_entries)
     last_check = datetime.now(timezone.utc)
     threading.Timer(1, network_scan).start()
