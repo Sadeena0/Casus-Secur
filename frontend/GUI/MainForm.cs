@@ -37,6 +37,8 @@ namespace GUI {
 
         // IPDataList stuff
         private DataTable dt = new DataTable();
+        private bool suppressSelectionEvent;
+        private string selectedIp;
 
         public MainForm() {
             InitializeComponent();
@@ -72,8 +74,8 @@ namespace GUI {
         }
 
         // Update loop
-        private async void UpdateTimer_Tick(object sender, EventArgs e) {
-            System.Diagnostics.Debug.Write("Updating...");
+        private void UpdateTimer_Tick(object sender, EventArgs e) {
+            System.Diagnostics.Debug.Write($"[{DateTime.Now:HH:mm:ss}] Updating... ");
 
             // Update IpAdDressList
             UpdateIpAddressList();
@@ -84,6 +86,8 @@ namespace GUI {
 
         // Updaters
         private void UpdateIpAddressList() {
+            suppressSelectionEvent = true; //suppress row select triggers
+
             IPDataList.SuspendLayout();
 
             try {
@@ -94,10 +98,15 @@ namespace GUI {
                     : ListSortDirection.Ascending;
                 int scrollIndex = Math.Max(IPDataList.FirstDisplayedScrollingRowIndex, 0);
 
-                // Not having any row selected doesnt work yet (ALWAYS selects first row as default?)
-                string selectedIp = IPDataList.CurrentRow?.Cells["ip"]?.Value?.ToString();
-
+                // Create DataTable
                 dt = new DataTable();
+                dt.Columns.Add("ip", typeof(string));
+                dt.Columns.Add("appname", typeof(string));
+                dt.Columns.Add("times", typeof(int));
+                dt.Columns.Add("location", typeof(string));
+                dt.Columns.Add("lat", typeof(double));
+                dt.Columns.Add("lon", typeof(double));
+                dt.Columns.Add("sent", typeof(long));
 
                 // Get data locally or remotely
                 try {
@@ -112,36 +121,45 @@ namespace GUI {
 
                             // Fill data into new DataTable
                             string query = "SELECT ip, appname, times, location, lat, lon, sent FROM ip_addresses";
-                            new SQLiteDataAdapter(query, connection).Fill(dt);
+
+                            using (SQLiteCommand cmd = new SQLiteCommand(query, connection)) {
+                                using (SQLiteDataReader reader = cmd.ExecuteReader()) {
+                                    while (reader.Read()) {
+                                        if (!reader.IsDBNull(reader.GetOrdinal("lat")) &&
+                                            !reader.IsDBNull(reader.GetOrdinal("lon"))) {
+                                            string ip = reader["ip"]?.ToString() ?? "Unknown IP";
+                                            string appname = reader["appname"]?.ToString() ?? "Unknown App";
+                                            string location = reader["location"]?.ToString() ?? "Unknown Location";
+                                            double lat = Convert.ToDouble(reader["lat"]);
+                                            double lng = Convert.ToDouble(reader["lon"]);
+                                            int times = reader.GetInt32(reader.GetOrdinal("times"));
+                                            long sent = reader.GetInt64(reader.GetOrdinal("sent"));
+
+                                            dt.Rows.Add(ip, appname, times, location, lat, lng, sent);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     else if (InputBtnRemote.Checked) {
                         System.Diagnostics.Debug.WriteLine("Getting data from remote");
 
-                        string targetIP = InputRemoteTextBox.Text;
+                        string targetIp = InputRemoteTextBox.Text;
 
                         // Verify if valid IP Address
-                        if (IPAddress.TryParse(targetIP, out _)) {
+                        if (IPAddress.TryParse(targetIp, out _)) {
                             string key = File.ReadAllText(ApiKeyPath);
                             key = key.Substring(9, key.Length - 10);
 
                             // Make client, send request and save response
                             using (HttpClient client = new HttpClient()) {
                                 using (HttpResponseMessage response =
-                                       client.GetAsync($"http://{targetIP}:5000/getdb?key={key}").Result) {
+                                       client.GetAsync($"http://{targetIp}:5000/getdb?key={key}").Result) {
                                     // Parse into array of arrays
                                     var jsonArray =
                                         JsonConvert.DeserializeObject<JArray>(response.Content.ReadAsStringAsync()
                                             .Result);
-
-                                    // Create columns
-                                    dt.Columns.Add("ip", typeof(string));
-                                    dt.Columns.Add("appname", typeof(string));
-                                    dt.Columns.Add("times", typeof(int));
-                                    dt.Columns.Add("location", typeof(string));
-                                    dt.Columns.Add("lat", typeof(double));
-                                    dt.Columns.Add("lon", typeof(double));
-                                    dt.Columns.Add("sent", typeof(long));
 
                                     // Populate DataTable
                                     foreach (var row in jsonArray) {
@@ -166,7 +184,7 @@ namespace GUI {
                     // Copy sent into new column, but make it pretty :3
                     foreach (DataRow row in dt.Rows) {
                         if (row["sent"] != DBNull.Value) {
-                            long sent = Convert.ToInt64(row["sent"]);
+                            long sent = (long)row["sent"];
 
                             row["sent_pretty"] = sent >= 1_000_000_000
                                 ? $"{sent / 1_000_000_000.0:F1} GB"
@@ -184,6 +202,8 @@ namespace GUI {
                     Console.WriteLine(e);
                 } finally {
                     // Restore UI state
+                    bool restoredSelection = false;
+
                     if (!string.IsNullOrEmpty(sortColumn)) {
                         IPDataList.Sort(IPDataList.Columns[sortColumn], sortDirection);
                     }
@@ -193,6 +213,7 @@ namespace GUI {
                             if (row.Cells["ip"].Value?.ToString() == selectedIp) {
                                 row.Selected = true;
                                 IPDataList.CurrentCell = row.Cells[0];
+                                restoredSelection = true;
                                 break;
                             }
                         }
@@ -201,60 +222,59 @@ namespace GUI {
                     if (scrollIndex < IPDataList.Rows.Count) {
                         IPDataList.FirstDisplayedScrollingRowIndex = scrollIndex;
                     }
-                }
-            } catch (Exception e) {
-                Console.WriteLine(e);
-            } finally {
-                IPDataList.ResumeLayout();
-            }
-        }
 
-        private void UpdateMarkersFromDataTable() {
-            Map.SuspendLayout();
-
-            try {
-                // Clear all overlays from the map
-                Map.Overlays.Clear();
-
-                // Create fresh overlays
-                routeOverlay = new GMapOverlay("routes");
-                markersOverlay = new GMapOverlay("markers");
-
-                // Add overlays to map
-                Map.Overlays.Add(routeOverlay);
-                Map.Overlays.Add(markersOverlay);
-
-                // Add own location first
-                GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
-                markersOverlay.Markers.Add(referenceMarker);
-
-                // Read all rows from DataTable and draw markers
-                foreach (DataRow row in dt.Rows) {
-                    string ip = row["ip"]?.ToString();
-                    long.TryParse(row["sent"]?.ToString(), out long sentBytes);
-
-                    if (double.TryParse(row["lat"]?.ToString(), out double lat) &&
-                        double.TryParse(row["lon"]?.ToString(), out double lon)) {
-                        AddMarker(lat, lon, IoCList.Contains(ip), sentBytes);
+                    // If no selection was restored (so nothing was selected), clear default selection (first row)
+                    if (!restoredSelection) {
+                        IPDataList.ClearSelection();
+                        IPDataList.CurrentCell = null;
                     }
                 }
             } catch (Exception e) {
                 Console.WriteLine(e);
             } finally {
-                Map.ResumeLayout();
+                suppressSelectionEvent = false; // re-enable triggers
+                IPDataList.ResumeLayout();
+            }
+        }
+
+        private void UpdateMarkersFromDataTable() {
+            // Clear all overlays from the map
+            Map.Overlays.Clear();
+
+            // Create fresh overlays
+            routeOverlay = new GMapOverlay("routes");
+            markersOverlay = new GMapOverlay("markers");
+
+            // Add overlays to map
+            Map.Overlays.Add(routeOverlay);
+            Map.Overlays.Add(markersOverlay);
+
+            // Add own location first
+            GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
+            markersOverlay.Markers.Add(referenceMarker);
+
+            // Read all rows from DataTable and draw markers
+            foreach (DataRow row in dt.Rows) {
+                double lat = (double)row["lat"];
+                double lng = (double)row["lon"];
+                string ip = row["ip"]?.ToString();
+                long sent = (long)row["sent"];
+
+                AddMarker(lat, lng, IoCList.Contains(ip), sent);
             }
         }
 
         private void AddMarker(double lat, double lng, bool isIoC, long sentBytes) {
             PointLatLng point = new PointLatLng(lat, lng);
 
-            GMarkerGoogleType markerType =
-                selectedMarkerCoords.HasValue && selectedMarkerCoords.Value.lat == lat &&
-                selectedMarkerCoords.Value.lng == lng
-                    ? GMarkerGoogleType.blue_dot
-                    : isIoC
-                        ? GMarkerGoogleType.red_small
-                        : GMarkerGoogleType.green_small;
+            bool isSelected = selectedMarkerCoords.HasValue && selectedMarkerCoords.Value.lat == lat &&
+                              selectedMarkerCoords.Value.lng == lng;
+
+            GMarkerGoogleType markerType = isSelected
+                ? GMarkerGoogleType.blue_dot
+                : isIoC
+                    ? GMarkerGoogleType.red_small
+                    : GMarkerGoogleType.green_small;
 
             GMarkerGoogle marker = new GMarkerGoogle(point, markerType);
 
@@ -263,14 +283,20 @@ namespace GUI {
 
             markersOverlay.Markers.Add(marker);
 
-            DrawLineToReference(point, isIoC, sentBytes);
+            DrawLineToReference(point, sentBytes, isIoC, isSelected);
         }
 
-        private void DrawLineToReference(PointLatLng destination, bool isIoC, long sentBytes) {
+        private void DrawLineToReference(PointLatLng destination, long sentBytes, bool isIoC, bool isSelected) {
             List<PointLatLng> points = new List<PointLatLng> {
                 referencePoint,
                 destination
             };
+
+            Color color = isSelected
+                ? Color.Blue
+                : isIoC
+                    ? Color.Red
+                    : Color.Green;
 
             int width =
                 sentBytes >= 1_000_000_000 // Bigger than 1 gb: width 4
@@ -282,7 +308,7 @@ namespace GUI {
                             : 1;
 
             GMapRoute route = new GMapRoute(points, "lineToDest") {
-                Stroke = new Pen(isIoC ? Color.Red : Color.Green, width)
+                Stroke = new Pen(color, width)
             };
 
             routeOverlay.Routes.Add(route);
@@ -290,19 +316,19 @@ namespace GUI {
 
         // Onclick events
         private void IpAddressList_OnRowSelected(object sender, EventArgs e) {
-            if (IPDataList.SelectedRows.Count == 0 || markersOverlay == null)
+            if (suppressSelectionEvent || IPDataList.SelectedRows.Count == 0 || markersOverlay == null)
                 return;
 
             DataGridViewRow row = IPDataList.SelectedRows[0];
 
-            // Check if row contains coordinates
-            if (row.Cells["lat"].Value == DBNull.Value || row.Cells["lon"].Value == DBNull.Value)
-                return;
+            if (row.Cells["lat"].Value is double lat && row.Cells["lon"].Value is double lon) {
+                selectedMarkerCoords = (lat, lon);
+            }
 
-            double.TryParse(row.Cells["lat"]?.ToString(), out double lat);
-            double.TryParse(row.Cells["lon"]?.ToString(), out double lng);
-
-            selectedMarkerCoords = (lat, lng);
+            string ip = row.Cells["ip"].Value?.ToString();
+            if (!string.IsNullOrEmpty(ip)) {
+                selectedIp = ip;
+            }
         }
 
         private void Map_OnMarkerClick(GMapMarker item, MouseEventArgs e) {
@@ -315,11 +341,15 @@ namespace GUI {
 
             // Highlight correct row in DataGridView
             foreach (DataGridViewRow row in IPDataList.Rows) {
-                double.TryParse(row.Cells["lat"]?.ToString(), out double rowLat);
-                double.TryParse(row.Cells["lon"]?.ToString(), out double rowLng);
-
                 // If lat/lng match, select and highlight the row
-                if (rowLat == lat && rowLng == lng) {
+                if ((double)row.Cells["lat"].Value == lat && (double)row.Cells["lon"].Value == lng) {
+                    string ip = row.Cells["ip"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(ip)) {
+                        selectedIp = ip;
+                    }
+
+                    IPDataList.ClearSelection();
+                    IPDataList.CurrentCell = null;
                     row.Selected = true;
                     IPDataList.FirstDisplayedScrollingRowIndex = row.Index;
                     break;
@@ -337,7 +367,7 @@ namespace GUI {
             key = key.Substring(9, key.Length - 10);
 
             using (HttpClient client = new HttpClient()) {
-                HttpResponseMessage response =
+                HttpResponseMessage unused =
                     client.PostAsync($"http://127.0.0.1:5000/cleardb?key={key}", null).Result;
             }
         }

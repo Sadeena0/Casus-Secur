@@ -33,11 +33,11 @@ namespace GUI {
             this.ClearListBtn = new System.Windows.Forms.Button();
             this.ResetMapBtn = new System.Windows.Forms.Button();
             this.InputOptionsBox = new System.Windows.Forms.GroupBox();
+            this.ClearSelectionBtn = new System.Windows.Forms.Button();
             this.InputRemoteTextBox = new System.Windows.Forms.TextBox();
             this.InputBtnRemote = new System.Windows.Forms.RadioButton();
             this.InputBtnLocal = new System.Windows.Forms.RadioButton();
             this.IPDataList = new System.Windows.Forms.DataGridView();
-            this.ClearSelectionBtn = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.MainSplit)).BeginInit();
             this.MainSplit.Panel1.SuspendLayout();
             this.MainSplit.Panel2.SuspendLayout();
@@ -111,7 +111,7 @@ namespace GUI {
             this.Map.ShowTileGridLines = false;
             this.Map.Size = new System.Drawing.Size(813, 542);
             this.Map.TabIndex = 0;
-            this.Map.Zoom = 15D;
+            this.Map.Zoom = 2D;
             this.Map.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.Map_OnMarkerClick);
             // 
             // ButtonLayout
@@ -167,6 +167,16 @@ namespace GUI {
             this.InputOptionsBox.TabStop = false;
             this.InputOptionsBox.Text = "Input Options";
             // 
+            // ClearSelectionBtn
+            // 
+            this.ClearSelectionBtn.Location = new System.Drawing.Point(9, 136);
+            this.ClearSelectionBtn.Name = "ClearSelectionBtn";
+            this.ClearSelectionBtn.Size = new System.Drawing.Size(250, 23);
+            this.ClearSelectionBtn.TabIndex = 3;
+            this.ClearSelectionBtn.Text = "Clear selection";
+            this.ClearSelectionBtn.UseVisualStyleBackColor = true;
+            this.ClearSelectionBtn.Click += new System.EventHandler(this.ClearSelectionBtn_Click);
+            // 
             // InputRemoteTextBox
             // 
             this.InputRemoteTextBox.Enabled = false;
@@ -212,22 +222,13 @@ namespace GUI {
             this.IPDataList.Location = new System.Drawing.Point(0, 0);
             this.IPDataList.MultiSelect = false;
             this.IPDataList.Name = "IPDataList";
+            this.IPDataList.RowHeadersVisible = false;
             this.IPDataList.RowHeadersWidth = 51;
             this.IPDataList.RowTemplate.Height = 24;
             this.IPDataList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
             this.IPDataList.SelectionChanged += new System.EventHandler(this.IpAddressList_OnRowSelected);
-            // 
-            // ClearSelectionBtn
-            // 
-            this.ClearSelectionBtn.Location = new System.Drawing.Point(9, 136);
-            this.ClearSelectionBtn.Name = "ClearSelectionBtn";
-            this.ClearSelectionBtn.Size = new System.Drawing.Size(250, 23);
-            this.ClearSelectionBtn.TabIndex = 3;
-            this.ClearSelectionBtn.Text = "Clear selection";
-            this.ClearSelectionBtn.UseVisualStyleBackColor = true;
-            this.ClearSelectionBtn.Click += new System.EventHandler(this.ClearSelectionBtn_Click);
             // 
             // MainForm
             // 
