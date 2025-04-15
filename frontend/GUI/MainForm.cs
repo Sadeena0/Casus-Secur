@@ -39,11 +39,8 @@ namespace GUI {
             }
         }
 
-
-        // Initializer constants
+        // Constants
         private const int DefaultZoom = 2;
-
-        // Updater constants
         private const int UpdateIntervalMs = 1000; // 1000ms = 1 second
         private const string LocalDbPath = @"..\\..\\..\\..\\backend\\connections.db";
         private const string ApiKeyPath = @"..\\..\\..\\GUI\\.env";
@@ -62,7 +59,7 @@ namespace GUI {
         private bool suppressSelectionEvent;
 
         // Tracking of selected item
-        private SelectedItem? selectedItem = null;
+        private SelectedItem? selectedItem;
 
 
         public MainForm() {
@@ -166,8 +163,7 @@ namespace GUI {
                                 }
                             }
                         }
-                    }
-                    else if (InputBtnRemote.Checked) {
+                    } else if (InputBtnRemote.Checked) {
                         System.Diagnostics.Debug.WriteLine("Getting data from remote");
 
                         string targetIp = InputRemoteTextBox.Text;
@@ -274,18 +270,20 @@ namespace GUI {
             Map.Overlays.Add(routeOverlay);
             Map.Overlays.Add(markersOverlay);
 
-            // Add own location first
-            GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
-            markersOverlay.Markers.Add(referenceMarker);
+            if (!referencePoint.IsEmpty) {
+                // Add own location first
+                GMarkerGoogle referenceMarker = new GMarkerGoogle(referencePoint, GMarkerGoogleType.blue_dot);
+                markersOverlay.Markers.Add(referenceMarker);
 
-            // Read all rows from DataTable and draw markers
-            foreach (DataRow row in dt.Rows) {
-                double lat = (double)row["lat"];
-                double lng = (double)row["lon"];
-                string ip = row["ip"]?.ToString();
-                long sent = (long)row["sent"];
+                // Read all rows from DataTable and draw markers
+                foreach (DataRow row in dt.Rows) {
+                    double lat = (double)row["lat"];
+                    double lng = (double)row["lon"];
+                    string ip = row["ip"]?.ToString();
+                    long sent = (long)row["sent"];
 
-                AddMarker(lat, lng, IoCList.Contains(ip), sent);
+                    AddMarker(lat, lng, IoCList.Contains(ip), sent);
+                }
             }
         }
 
@@ -386,9 +384,17 @@ namespace GUI {
             string key = File.ReadAllText(ApiKeyPath);
             key = key.Substring(9, key.Length - 10);
 
+            string ip = null;
+            if (InputBtnLocal.Checked) {
+                ip = "127.0.0.1";
+            } else if (InputBtnRemote.Checked) {
+                IPAddress.TryParse(InputRemoteTextBox.Text, out IPAddress validIp);
+                ip = validIp.ToString();
+            }
+
             using (HttpClient client = new HttpClient()) {
                 HttpResponseMessage unused =
-                    client.PostAsync($"http://127.0.0.1:5000/cleardb?key={key}", null).Result;
+                    client.PostAsync($"http://{ip}:5000/cleardb?key={key}", null).Result;
             }
         }
 
