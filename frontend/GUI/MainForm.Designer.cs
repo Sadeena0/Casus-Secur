@@ -26,60 +26,65 @@ namespace GUI {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.MainSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.MapButtonsSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.MainSplit = new System.Windows.Forms.SplitContainer();
+            this.MapButtonsSplit = new System.Windows.Forms.SplitContainer();
             this.Map = new GMap.NET.WindowsForms.GMapControl();
             this.ButtonLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.ClearListButton = new System.Windows.Forms.Button();
-            this.ResetMapButton = new System.Windows.Forms.Button();
-            this.IoCButton = new System.Windows.Forms.Button();
+            this.ClearListBtn = new System.Windows.Forms.Button();
+            this.ResetMapBtn = new System.Windows.Forms.Button();
+            this.InputOptionsBox = new System.Windows.Forms.GroupBox();
+            this.ClearSelectionBtn = new System.Windows.Forms.Button();
+            this.InputRemoteTextBox = new System.Windows.Forms.TextBox();
+            this.InputBtnRemote = new System.Windows.Forms.RadioButton();
+            this.InputBtnLocal = new System.Windows.Forms.RadioButton();
             this.IPDataList = new System.Windows.Forms.DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).BeginInit();
-            this.MainSplitContainer.Panel1.SuspendLayout();
-            this.MainSplitContainer.Panel2.SuspendLayout();
-            this.MainSplitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).BeginInit();
-            this.MapButtonsSplitContainer.Panel1.SuspendLayout();
-            this.MapButtonsSplitContainer.Panel2.SuspendLayout();
-            this.MapButtonsSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplit)).BeginInit();
+            this.MainSplit.Panel1.SuspendLayout();
+            this.MainSplit.Panel2.SuspendLayout();
+            this.MainSplit.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplit)).BeginInit();
+            this.MapButtonsSplit.Panel1.SuspendLayout();
+            this.MapButtonsSplit.Panel2.SuspendLayout();
+            this.MapButtonsSplit.SuspendLayout();
             this.ButtonLayout.SuspendLayout();
+            this.InputOptionsBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).BeginInit();
             this.SuspendLayout();
             // 
-            // MainSplitContainer
+            // MainSplit
             // 
-            this.MainSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.MainSplitContainer.Name = "MainSplitContainer";
+            this.MainSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainSplit.Location = new System.Drawing.Point(0, 0);
+            this.MainSplit.Name = "MainSplit";
             // 
-            // MainSplitContainer.Panel1
+            // MainSplit.Panel1
             // 
-            this.MainSplitContainer.Panel1.Controls.Add(this.MapButtonsSplitContainer);
+            this.MainSplit.Panel1.Controls.Add(this.MapButtonsSplit);
             // 
-            // MainSplitContainer.Panel2
+            // MainSplit.Panel2
             // 
-            this.MainSplitContainer.Panel2.Controls.Add(this.IPDataList);
-            this.MainSplitContainer.Size = new System.Drawing.Size(1280, 720);
-            this.MainSplitContainer.SplitterDistance = 813;
-            this.MainSplitContainer.TabIndex = 0;
+            this.MainSplit.Panel2.Controls.Add(this.IPDataList);
+            this.MainSplit.Size = new System.Drawing.Size(1280, 720);
+            this.MainSplit.SplitterDistance = 813;
+            this.MainSplit.TabIndex = 0;
             // 
-            // MapButtonsSplitContainer
+            // MapButtonsSplit
             // 
-            this.MapButtonsSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MapButtonsSplitContainer.Location = new System.Drawing.Point(0, 0);
-            this.MapButtonsSplitContainer.Name = "MapButtonsSplitContainer";
-            this.MapButtonsSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.MapButtonsSplit.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MapButtonsSplit.Location = new System.Drawing.Point(0, 0);
+            this.MapButtonsSplit.Name = "MapButtonsSplit";
+            this.MapButtonsSplit.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // MapButtonsSplitContainer.Panel1
+            // MapButtonsSplit.Panel1
             // 
-            this.MapButtonsSplitContainer.Panel1.Controls.Add(this.Map);
+            this.MapButtonsSplit.Panel1.Controls.Add(this.Map);
             // 
-            // MapButtonsSplitContainer.Panel2
+            // MapButtonsSplit.Panel2
             // 
-            this.MapButtonsSplitContainer.Panel2.Controls.Add(this.ButtonLayout);
-            this.MapButtonsSplitContainer.Size = new System.Drawing.Size(813, 720);
-            this.MapButtonsSplitContainer.SplitterDistance = 542;
-            this.MapButtonsSplitContainer.TabIndex = 0;
+            this.MapButtonsSplit.Panel2.Controls.Add(this.ButtonLayout);
+            this.MapButtonsSplit.Size = new System.Drawing.Size(813, 720);
+            this.MapButtonsSplit.SplitterDistance = 542;
+            this.MapButtonsSplit.TabIndex = 0;
             // 
             // Map
             // 
@@ -95,7 +100,7 @@ namespace GUI {
             this.Map.MaxZoom = 2;
             this.Map.MinZoom = 15;
             this.Map.MouseWheelZoomEnabled = true;
-            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionAndCenter;
+            this.Map.MouseWheelZoomType = GMap.NET.MouseWheelZoomType.MousePositionWithoutCenter;
             this.Map.Name = "Map";
             this.Map.NegativeMode = false;
             this.Map.PolygonsEnabled = true;
@@ -106,7 +111,8 @@ namespace GUI {
             this.Map.ShowTileGridLines = false;
             this.Map.Size = new System.Drawing.Size(813, 542);
             this.Map.TabIndex = 0;
-            this.Map.Zoom = 2D;
+            this.Map.Zoom = 15D;
+            this.Map.OnMarkerClick += new GMap.NET.WindowsForms.MarkerClick(this.Map_OnMarkerClick);
             // 
             // ButtonLayout
             // 
@@ -114,9 +120,9 @@ namespace GUI {
             this.ButtonLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.ButtonLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.ButtonLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.ButtonLayout.Controls.Add(this.ClearListButton, 2, 0);
-            this.ButtonLayout.Controls.Add(this.ResetMapButton, 1, 0);
-            this.ButtonLayout.Controls.Add(this.IoCButton, 0, 0);
+            this.ButtonLayout.Controls.Add(this.ClearListBtn, 2, 0);
+            this.ButtonLayout.Controls.Add(this.ResetMapBtn, 1, 0);
+            this.ButtonLayout.Controls.Add(this.InputOptionsBox, 0, 0);
             this.ButtonLayout.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ButtonLayout.Location = new System.Drawing.Point(0, 0);
             this.ButtonLayout.Name = "ButtonLayout";
@@ -125,38 +131,88 @@ namespace GUI {
             this.ButtonLayout.Size = new System.Drawing.Size(813, 174);
             this.ButtonLayout.TabIndex = 0;
             // 
-            // ClearListButton
+            // ClearListBtn
             // 
-            this.ClearListButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ClearListButton.Location = new System.Drawing.Point(545, 3);
-            this.ClearListButton.Name = "ClearListButton";
-            this.ClearListButton.Size = new System.Drawing.Size(265, 168);
-            this.ClearListButton.TabIndex = 2;
-            this.ClearListButton.Text = "Clear list";
-            this.ClearListButton.UseVisualStyleBackColor = true;
-            this.ClearListButton.Click += new System.EventHandler(this.ClearListButton_Click);
+            this.ClearListBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ClearListBtn.Location = new System.Drawing.Point(545, 3);
+            this.ClearListBtn.Name = "ClearListBtn";
+            this.ClearListBtn.Size = new System.Drawing.Size(265, 168);
+            this.ClearListBtn.TabIndex = 2;
+            this.ClearListBtn.Text = "Clear list";
+            this.ClearListBtn.UseVisualStyleBackColor = true;
+            this.ClearListBtn.Click += new System.EventHandler(this.ClearListButton_Click);
             // 
-            // ResetMapButton
+            // ResetMapBtn
             // 
-            this.ResetMapButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ResetMapButton.Location = new System.Drawing.Point(274, 3);
-            this.ResetMapButton.Name = "ResetMapButton";
-            this.ResetMapButton.Size = new System.Drawing.Size(265, 168);
-            this.ResetMapButton.TabIndex = 1;
-            this.ResetMapButton.Text = "Reset map";
-            this.ResetMapButton.UseVisualStyleBackColor = true;
-            this.ResetMapButton.Click += new System.EventHandler(this.ResetMapButton_Click);
+            this.ResetMapBtn.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ResetMapBtn.Location = new System.Drawing.Point(274, 3);
+            this.ResetMapBtn.Name = "ResetMapBtn";
+            this.ResetMapBtn.Size = new System.Drawing.Size(265, 168);
+            this.ResetMapBtn.TabIndex = 1;
+            this.ResetMapBtn.Text = "Reset map";
+            this.ResetMapBtn.UseVisualStyleBackColor = true;
+            this.ResetMapBtn.Click += new System.EventHandler(this.ResetMapButton_Click);
             // 
-            // IoCButton
+            // InputOptionsBox
             // 
-            this.IoCButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.IoCButton.Location = new System.Drawing.Point(3, 3);
-            this.IoCButton.Name = "IoCButton";
-            this.IoCButton.Size = new System.Drawing.Size(265, 168);
-            this.IoCButton.TabIndex = 0;
-            this.IoCButton.Text = "Indicators of Compromise";
-            this.IoCButton.UseVisualStyleBackColor = true;
-            this.IoCButton.Click += new System.EventHandler(this.IoCButton_Click);
+            this.InputOptionsBox.Controls.Add(this.ClearSelectionBtn);
+            this.InputOptionsBox.Controls.Add(this.InputRemoteTextBox);
+            this.InputOptionsBox.Controls.Add(this.InputBtnRemote);
+            this.InputOptionsBox.Controls.Add(this.InputBtnLocal);
+            this.InputOptionsBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.InputOptionsBox.Location = new System.Drawing.Point(3, 3);
+            this.InputOptionsBox.Name = "InputOptionsBox";
+            this.InputOptionsBox.Size = new System.Drawing.Size(265, 168);
+            this.InputOptionsBox.TabIndex = 3;
+            this.InputOptionsBox.TabStop = false;
+            this.InputOptionsBox.Text = "Input Options";
+            // 
+            // ClearSelectionBtn
+            // 
+            this.ClearSelectionBtn.Location = new System.Drawing.Point(9, 136);
+            this.ClearSelectionBtn.Name = "ClearSelectionBtn";
+            this.ClearSelectionBtn.Size = new System.Drawing.Size(250, 23);
+            this.ClearSelectionBtn.TabIndex = 3;
+            this.ClearSelectionBtn.Text = "Clear selection";
+            this.ClearSelectionBtn.UseVisualStyleBackColor = true;
+            this.ClearSelectionBtn.Click += new System.EventHandler(this.ClearSelectionBtn_Click);
+            // 
+            // InputRemoteTextBox
+            // 
+            this.InputRemoteTextBox.Enabled = false;
+            this.InputRemoteTextBox.ForeColor = System.Drawing.Color.Gray;
+            this.InputRemoteTextBox.Location = new System.Drawing.Point(35, 85);
+            this.InputRemoteTextBox.Name = "InputRemoteTextBox";
+            this.InputRemoteTextBox.Size = new System.Drawing.Size(224, 22);
+            this.InputRemoteTextBox.TabIndex = 2;
+            this.InputRemoteTextBox.Text = "Enter IP address";
+            this.InputRemoteTextBox.Enter += new System.EventHandler(this.InputRemoteTextBox_Enter);
+            this.InputRemoteTextBox.Leave += new System.EventHandler(this.InputRemoteTextBox_Leave);
+            // 
+            // InputBtnRemote
+            // 
+            this.InputBtnRemote.AutoSize = true;
+            this.InputBtnRemote.Location = new System.Drawing.Point(9, 55);
+            this.InputBtnRemote.Name = "InputBtnRemote";
+            this.InputBtnRemote.Size = new System.Drawing.Size(76, 20);
+            this.InputBtnRemote.TabIndex = 1;
+            this.InputBtnRemote.TabStop = true;
+            this.InputBtnRemote.Text = "Remote";
+            this.InputBtnRemote.UseVisualStyleBackColor = true;
+            this.InputBtnRemote.CheckedChanged += new System.EventHandler(this.InputButtonRemote_CheckedChanged);
+            // 
+            // InputBtnLocal
+            // 
+            this.InputBtnLocal.AutoSize = true;
+            this.InputBtnLocal.Checked = true;
+            this.InputBtnLocal.Location = new System.Drawing.Point(9, 25);
+            this.InputBtnLocal.Name = "InputBtnLocal";
+            this.InputBtnLocal.Size = new System.Drawing.Size(61, 20);
+            this.InputBtnLocal.TabIndex = 0;
+            this.InputBtnLocal.TabStop = true;
+            this.InputBtnLocal.Text = "Local";
+            this.InputBtnLocal.UseVisualStyleBackColor = true;
+            this.InputBtnLocal.CheckedChanged += new System.EventHandler(this.InputButtonLocal_CheckedChanged);
             // 
             // IPDataList
             // 
@@ -164,28 +220,34 @@ namespace GUI {
             this.IPDataList.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.IPDataList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.IPDataList.Location = new System.Drawing.Point(0, 0);
+            this.IPDataList.MultiSelect = false;
             this.IPDataList.Name = "IPDataList";
+            this.IPDataList.RowHeadersVisible = false;
             this.IPDataList.RowHeadersWidth = 51;
             this.IPDataList.RowTemplate.Height = 24;
+            this.IPDataList.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.IPDataList.Size = new System.Drawing.Size(463, 720);
             this.IPDataList.TabIndex = 0;
+            this.IPDataList.SelectionChanged += new System.EventHandler(this.IpAddressList_OnRowSelected);
             // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(1280, 720);
-            this.Controls.Add(this.MainSplitContainer);
+            this.Controls.Add(this.MainSplit);
             this.Name = "MainForm";
             this.Text = "IP Tracker";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.MainSplitContainer.Panel1.ResumeLayout(false);
-            this.MainSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MainSplitContainer)).EndInit();
-            this.MainSplitContainer.ResumeLayout(false);
-            this.MapButtonsSplitContainer.Panel1.ResumeLayout(false);
-            this.MapButtonsSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplitContainer)).EndInit();
-            this.MapButtonsSplitContainer.ResumeLayout(false);
+            this.MainSplit.Panel1.ResumeLayout(false);
+            this.MainSplit.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MainSplit)).EndInit();
+            this.MainSplit.ResumeLayout(false);
+            this.MapButtonsSplit.Panel1.ResumeLayout(false);
+            this.MapButtonsSplit.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.MapButtonsSplit)).EndInit();
+            this.MapButtonsSplit.ResumeLayout(false);
             this.ButtonLayout.ResumeLayout(false);
+            this.InputOptionsBox.ResumeLayout(false);
+            this.InputOptionsBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IPDataList)).EndInit();
             this.ResumeLayout(false);
 
@@ -193,14 +255,18 @@ namespace GUI {
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer MainSplitContainer;
-        private System.Windows.Forms.SplitContainer MapButtonsSplitContainer;
+        private System.Windows.Forms.SplitContainer MainSplit;
+        private System.Windows.Forms.SplitContainer MapButtonsSplit;
         private System.Windows.Forms.DataGridView IPDataList;
         private GMap.NET.WindowsForms.GMapControl Map;
         private System.Windows.Forms.TableLayoutPanel ButtonLayout;
-        private System.Windows.Forms.Button ClearListButton;
-        private System.Windows.Forms.Button ResetMapButton;
-        private System.Windows.Forms.Button IoCButton;
+        private System.Windows.Forms.Button ClearListBtn;
+        private System.Windows.Forms.Button ResetMapBtn;
+        private System.Windows.Forms.GroupBox InputOptionsBox;
+        private System.Windows.Forms.TextBox InputRemoteTextBox;
+        private System.Windows.Forms.RadioButton InputBtnRemote;
+        private System.Windows.Forms.RadioButton InputBtnLocal;
+        private System.Windows.Forms.Button ClearSelectionBtn;
     }
 }
 
