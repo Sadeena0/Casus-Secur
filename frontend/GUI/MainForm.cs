@@ -276,16 +276,17 @@ namespace GUI {
 
             // Read all rows from DataTable and draw markers
             foreach (DataRow row in dt.Rows) {
+                string appname = (string)row["appname"];
                 double lat = (double)row["lat"];
                 double lng = (double)row["lon"];
                 string ip = row["ip"]?.ToString();
                 long sent = (long)row["sent"];
 
-                AddMarker(lat, lng, IoCList.Contains(ip), sent);
+                AddMarker(appname, lat, lng, sent, IoCList.Contains(ip));
             }
         }
 
-        private void AddMarker(double lat, double lng, bool isIoC, long sentBytes) {
+        private void AddMarker(string appname, double lat, double lng, long sentBytes, bool isIoC) {
             if (lat != 0 && lng != 0) {
                 PointLatLng point = new PointLatLng(lat, lng);
 
@@ -295,7 +296,9 @@ namespace GUI {
                     ? GMarkerGoogleType.blue_dot
                     : isIoC
                         ? GMarkerGoogleType.red_small
-                        : GMarkerGoogleType.green_small;
+                        : appname.Equals("SSH")
+                            ? GMarkerGoogleType.yellow_small
+                            : GMarkerGoogleType.green_small;
 
                 GMarkerGoogle marker = new GMarkerGoogle(point, markerType);
 
@@ -304,11 +307,11 @@ namespace GUI {
 
                 markersOverlay.Markers.Add(marker);
 
-                DrawLineToReference(point, sentBytes, isIoC, isSelected);
+                DrawLineToReference(appname, point, sentBytes, isIoC, isSelected);
             }
         }
 
-        private void DrawLineToReference(PointLatLng destination, long sentBytes, bool isIoC, bool isSelected) {
+        private void DrawLineToReference(string appname, PointLatLng destination, long sentBytes, bool isIoC, bool isSelected) {
             List<PointLatLng> points = new List<PointLatLng> {
                 referencePoint,
                 destination
@@ -318,7 +321,9 @@ namespace GUI {
                 ? Color.Blue
                 : isIoC
                     ? Color.Red
-                    : Color.Green;
+                    : appname.Equals("SSH")
+                        ? Color.Yellow
+                        : Color.Green;
 
             int width =
                 sentBytes >= 1_000_000_000 // Bigger than 1 gb: width 4
