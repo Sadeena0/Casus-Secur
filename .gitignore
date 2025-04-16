@@ -586,3 +586,7 @@ backend/connections.db
 backend/.idea/
 
 frontend/GUI/Properties/Settings.settings
+
+backend/connections.db-shm
+
+backend/connections.db-wal
