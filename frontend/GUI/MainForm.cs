@@ -141,6 +141,14 @@ namespace GUI {
                         using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
                             connection.Open();
 
+                            using (SQLiteCommand cmd = new SQLiteCommand("PRAGMA journal_mode = WAL", connection)) {
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            using (SQLiteCommand cmd = new SQLiteCommand("PRAGMA busy_timeout = 100", connection)) {
+                                cmd.ExecuteNonQuery();
+                            }
+
                             // Fill data into new DataTable
                             string query = "SELECT ip, appname, times, location, lat, lon, sent FROM ip_addresses";
 
