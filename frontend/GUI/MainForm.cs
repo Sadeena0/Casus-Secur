@@ -18,9 +18,9 @@ using Newtonsoft.Json.Linq;
 namespace GUI {
     public partial class MainForm : Form {
         private readonly struct SelectedItem {
-            public string Ip { get; }
-            public double Lat { get; }
-            public double Lng { get; }
+            private string Ip { get; }
+            private double Lat { get; }
+            private double Lng { get; }
 
             public SelectedItem(string ip, double lat, double lng) {
                 Ip = ip;
@@ -40,27 +40,27 @@ namespace GUI {
         }
 
         // Constants
-        private const int DefaultZoom = 2;
-        private const int UpdateIntervalMs = 1000; // 1000ms = 1 second
-        private const string LocalDbPath = @"..\\..\\..\\..\\backend\\connections.db";
-        private const string ApiKeyPath = @"..\\..\\..\\GUI\\.env";
+        private readonly int defaultMapZoom = 2;
+        private readonly (int lat, int lng) defaultMapPosition = (25, 5);
+        private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
+        private readonly int updateInterval = 1000; // 1000ms = 1 second
+        private readonly string localDbPath = @"..\..\..\..\backend\connections.db";
+        private readonly string apiKeyPath = @"..\..\..\GUI\.env";
+
+        private readonly HashSet<string> iocList = new HashSet<string>(
+            File.ReadAllLines(@"..\..\..\GUI\blacklist.txt")
+        );
 
         // Map stuff
         private GMapOverlay markersOverlay;
         private GMapOverlay routeOverlay;
-        private readonly PointLatLng referencePoint = new PointLatLng(50.88, 5.96);
-
-        private readonly HashSet<string> IoCList = new HashSet<string>(
-            File.ReadAllLines($"..\\..\\..\\GUI\\blacklist.txt")
-        );
 
         // IPDataList stuff
-        private DataTable dt = new DataTable();
+        private DataTable dt;
         private bool suppressSelectionEvent;
 
         // Tracking of selected item
         private SelectedItem? selectedItem;
-
 
         public MainForm() {
             InitializeComponent();
@@ -76,7 +76,7 @@ namespace GUI {
 
             // Start update loop
             Timer updateTimer = new Timer();
-            updateTimer.Interval = UpdateIntervalMs;
+            updateTimer.Interval = updateInterval;
             updateTimer.Tick += UpdateTimer_Tick;
             updateTimer.Start();
         }
@@ -87,10 +87,10 @@ namespace GUI {
 
             // Set map properties
             Map.MapProvider = GMapProviders.GoogleMap;
-            Map.Position = new PointLatLng(25, 15);
+            Map.Position = new PointLatLng(defaultMapPosition.lat, defaultMapPosition.lng);
             Map.MinZoom = 2;
             Map.MaxZoom = 15;
-            Map.Zoom = DefaultZoom;
+            Map.Zoom = defaultMapZoom;
             Map.ShowCenter = false;
             Map.DragButton = MouseButtons.Left;
         }
@@ -135,7 +135,7 @@ namespace GUI {
                     if (InputBtnLocal.Checked) {
                         System.Diagnostics.Debug.WriteLine("Getting data from local");
 
-                        string connectionString = $"Data Source={LocalDbPath}";
+                        string connectionString = $"Data Source={localDbPath}";
 
                         // Get data from database
                         using (SQLiteConnection connection = new SQLiteConnection(connectionString)) {
@@ -178,7 +178,7 @@ namespace GUI {
 
                         // Verify if valid IP Address
                         if (IPAddress.TryParse(targetIp, out _)) {
-                            string key = File.ReadAllText(ApiKeyPath);
+                            string key = File.ReadAllText(apiKeyPath);
                             key = key.Substring(9, key.Length - 10);
 
                             // Make client, send request and save response
@@ -218,8 +218,8 @@ namespace GUI {
                             row["sent_pretty"] = sent >= 1_000_000_000
                                 ? $"{sent / 1_000_000_000.0:F1} GB"
                                 : sent >= 1_000_000
-                                    ? $"{sent / 1_000_000:F1} MB"
-                                    : $"{sent / 1_000:F1} kB";
+                                    ? $"{sent / 1_000_000.0:F1} MB"
+                                    : $"{sent / 1_000.0:F1} kB";
                         }
                     }
 
@@ -290,7 +290,7 @@ namespace GUI {
                 string ip = row["ip"]?.ToString();
                 long sent = (long)row["sent"];
 
-                AddMarker(appname, lat, lng, sent, IoCList.Contains(ip));
+                AddMarker(appname, lat, lng, sent, iocList.Contains(ip));
             }
         }
 
@@ -389,12 +389,12 @@ namespace GUI {
         }
 
         private void ResetMapButton_Click(object sender, EventArgs e) {
-            Map.Position = new PointLatLng(25, 15);
-            Map.Zoom = DefaultZoom;
+            Map.Position = new PointLatLng(defaultMapPosition.lat, defaultMapPosition.lng);
+            Map.Zoom = defaultMapZoom;
         }
 
         private void ClearListButton_Click(object sender, EventArgs e) {
-            string key = File.ReadAllText(ApiKeyPath);
+            string key = File.ReadAllText(apiKeyPath);
             key = key.Substring(9, key.Length - 10);
 
             string ip = null;
@@ -431,7 +431,7 @@ namespace GUI {
         }
 
         private void InputRemoteTextBox_Enter(object sender, EventArgs e) {
-            if (InputRemoteTextBox.Text == "Enter IP address") {
+            if (InputRemoteTextBox.Text == @"Enter IP address") {
                 InputRemoteTextBox.Text = "";
                 InputRemoteTextBox.ForeColor = Color.Black;
             }
@@ -439,7 +439,7 @@ namespace GUI {
 
         private void InputRemoteTextBox_Leave(object sender, EventArgs e) {
             if (string.IsNullOrWhiteSpace(InputRemoteTextBox.Text)) {
-                InputRemoteTextBox.Text = "Enter IP address";
+                InputRemoteTextBox.Text = @"Enter IP address";
                 InputRemoteTextBox.ForeColor = Color.Gray;
             }
         }
