@@ -286,24 +286,26 @@ namespace GUI {
         }
 
         private void AddMarker(double lat, double lng, bool isIoC, long sentBytes) {
-            PointLatLng point = new PointLatLng(lat, lng);
+            if (lat != 0 && lng != 0) {
+                PointLatLng point = new PointLatLng(lat, lng);
 
-            bool isSelected = selectedItem.HasValue && selectedItem.Value.MatchesCoordinates(lat, lng);
+                bool isSelected = selectedItem.HasValue && selectedItem.Value.MatchesCoordinates(lat, lng);
 
-            GMarkerGoogleType markerType = isSelected
-                ? GMarkerGoogleType.blue_dot
-                : isIoC
-                    ? GMarkerGoogleType.red_small
-                    : GMarkerGoogleType.green_small;
+                GMarkerGoogleType markerType = isSelected
+                    ? GMarkerGoogleType.blue_dot
+                    : isIoC
+                        ? GMarkerGoogleType.red_small
+                        : GMarkerGoogleType.green_small;
 
-            GMarkerGoogle marker = new GMarkerGoogle(point, markerType);
+                GMarkerGoogle marker = new GMarkerGoogle(point, markerType);
 
-            // Add Tag for marker clicks
-            marker.Tag = new { Lat = lat, Lng = lng };
+                // Add Tag for marker clicks
+                marker.Tag = new { Lat = lat, Lng = lng };
 
-            markersOverlay.Markers.Add(marker);
+                markersOverlay.Markers.Add(marker);
 
-            DrawLineToReference(point, sentBytes, isIoC, isSelected);
+                DrawLineToReference(point, sentBytes, isIoC, isSelected);
+            }
         }
 
         private void DrawLineToReference(PointLatLng destination, long sentBytes, bool isIoC, bool isSelected) {
